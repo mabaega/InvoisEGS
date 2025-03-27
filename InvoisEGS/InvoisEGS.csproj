@@ -7,28 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ApiClient\ApiModels\xError.cs" />
-    <Compile Remove="CertificateTests.cs" />
-    <Compile Remove="Class.cs" />
-    <Compile Remove="Utilities\CertificateHelper.cs" />
-    <Compile Remove="Utilities\InvoiceTransformer copy.cs" />
-    <Compile Remove="Utilities\InvoiceTransformer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="Index.cshtml" />
-    <Content Remove="InvoiceSample.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="ApiClient\ApiHelpers\RefJsonSigning.ps1" />
-    <None Remove="Controllers\RelayController.txt" />
-    <None Remove="signedinvoicesample.jsom" />
-    <None Remove="test-certificate.pfx" />
-    <None Remove="ubljson.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="ApiClient\Resources\JsonUBLExtensions.txt" />
     <EmbeddedResource Include="ApiClient\Resources\XmlSignature.txt" />
     <EmbeddedResource Include="ApiClient\Resources\JsonSignedProps.txt" />

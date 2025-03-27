@@ -14,11 +14,15 @@ namespace InvoisEGS
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
            /*  InvoisEGS.ApiClient.ApiHelpers.CertificateHandler.SaveTestCertificate(
-            "IG22115690090",
-            "910821025719",
-            "WXXX_XXXXNI",
-            @"C:\Users\Incredible One\source\repos\InvoisEGS\InvoisEGS\test-certificate.pfx",
-            "12345678"); */
+           "IG22115690090",
+           "910821025719",
+           "WXXX_XXXXNI",
+           @"C:\Users\Incredible One\source\repos\InvoisEGS\InvoisEGS\test-certificate.pfx",
+           "12345678"); */
+
+            CertTest.ExtractCertificateNative();
+            CertTest.GetCertificateContents();
+            return;
 
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
