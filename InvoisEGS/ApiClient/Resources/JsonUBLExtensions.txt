@@ -1,0 +1,112 @@
+    "UBLExtensions": [{
+        "UBLExtension": [{
+            "ExtensionURI": [{
+                "_": "urn:oasis:names:specification:ubl:dsig:enveloped:xades"
+            }],
+            "ExtensionContent": [{
+                "UBLDocumentSignatures": [{
+                    "SignatureInformation": [{
+                        "ID": [{
+                            "_": "urn:oasis:names:specification:ubl:signature:1"
+                        }],
+                        "ReferencedSignatureID": [{
+                            "_": "urn:oasis:names:specification:ubl:signature:Invoice"
+                        }],
+                        "Signature": [{
+                            "Id": "signature",
+                            "Object": [{
+                                "QualifyingProperties": [{
+                                    "Target": "signature",
+                                    "SignedProperties": [{
+                                        "Id": "id-xades-signed-props",
+                                        "SignedSignatureProperties": [{
+                                            "SigningTime": [{
+                                                "_": "${UTC_TIMESTAMP}"
+                                            }],
+                                            "SigningCertificate": [{
+                                                "Cert": [{
+                                                    "CertDigest": [{
+                                                        "DigestMethod": [{
+                                                            "_": "",
+                                                            "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                                        }],
+                                                        "DigestValue": [{
+                                                            "_": "${CERT_DIGEST}"
+                                                        }]
+                                                    }],
+                                                    "IssuerSerial": [{
+                                                        "X509IssuerName": [{
+                                                            "_": "${ISSUER_NAME}"
+                                                        }],
+                                                        "X509SerialNumber": [{
+                                                            "_": "${CERT_SERIAL_NUMBER}"
+                                                        }]
+                                                    }]
+                                                }]
+                                            }]
+                                        }]
+                                    }]
+                                }]
+                            }],
+                            "KeyInfo": [{
+                                "X509Data": [{
+                                    "X509Certificate": [{
+                                        "_": "${RAW_DATA}"
+                                    }],
+                                    "X509SubjectName": [{
+                                        "_": "${SUBJECT_NAME}"
+                                    }],
+                                    "X509IssuerSerial": [{
+                                        "X509IssuerName": [{
+                                            "_": "${ISSUER_NAME}"
+                                        }],
+                                        "X509SerialNumber": [{
+                                            "_": "${CERT_SERIAL_NUMBER}"
+                                        }]
+                                    }]
+                                }]
+                            }],
+                            "SignatureValue": [{
+                                "_": "${SIGNATURE_BASE64}"
+                            }],
+                            "SignedInfo": [{
+                                "SignatureMethod": [{
+                                    "_": "",
+                                    "Algorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+                                }],
+                                "Reference": [{
+                                    "Type": "http://uri.etsi.org/01903/v1.3.2#SignedProperties",
+                                    "URI": "#id-xades-signed-props",
+                                    "DigestMethod": [{
+                                        "_": "",
+                                        "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                    }],
+                                    "DigestValue": [{
+                                        "_": "${SIGNED_PROPS_DIGEST}"
+                                    }]
+                                }, {
+                                    "Type": "",
+                                    "URI": "",
+                                    "DigestMethod": [{
+                                        "_": "",
+                                        "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                    }],
+                                    "DigestValue": [{
+                                        "_": "${DOCUMENT_DIGEST_BASE64}"
+                                    }]
+                                }]
+                            }]
+                        }]
+                    }]
+                }]
+            }]
+        }]
+    }],
+    "Signature": [{
+        "ID": [{
+            "_": "urn:oasis:names:specification:ubl:signature:Invoice"
+        }],
+        "SignatureMethod": [{
+            "_": "urn:oasis:names:specification:ubl:dsig:enveloped:xades"
+        }]
+    }]

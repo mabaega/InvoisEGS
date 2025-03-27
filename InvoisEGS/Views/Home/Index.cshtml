@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "InvoisEGS Home";
+}
+<style>
+    .list-group-item {
+        position: relative;
+        display: block;
+        padding: var(--#{$prefix}list-group-item-padding-y) var(--#{$prefix}list-group-item-padding-x);
+        color: var(--#{$prefix}list-group-color);
+        text-decoration: if($link-decoration == none, null, none);
+        background-color: var(--#{$prefix}list-group-bg);
+        border: none;
+    }
+</style>
+<div class="container mt-1">
+    <div class="text-center">
+        <div class="card shadow-sm rounded p-3 mt-1">
+            <h2 class="mb-2">Welcome to InvoisEGS</h2>
+            <p class="lead">The Simple and Free eInvoicing Integration Solution</p>
+        </div>
+
+        <div class="card shadow-sm rounded p-4 mt-1">
+            <h4 class="mb-3">What is InvoisEGS?</h4>
+            <p class="custom-lead">
+                InvoisEGS is a web service designed to simplify your eInvoicing process.<br />
+                It seamlessly integrates the <a href="https://manager.io" target="_blank">"Manager"</a> accounting application with the
+                <a href="https://sdk.myinvois.hasil.gov.my/" target="_blank">Lembaga Hasil Dalam Negeri Malaysia (LHDNM) MyInvois System</a>.
+            </p>
+
+            <div class="d-flex justify-content-center align-items-center my-1">
+                <div class="mx-3">
+                    <img src="/images/managerlogo.png" alt="Manager io Icon" class="img-fluid" style="height: 60px;">
+                </div>
+                <span class="fs-3 mx-3">&#x2194;</span>
+                <div class="mx-3">
+                    <img src="/images/logo.png" alt="Invois EGS Icon" class="img-fluid" style="height: 60px;">
+                </div>
+                <span class="fs-3 mx-3">&#x2194;</span>
+                <div class="mx-3">
+                    <img src="/images/lhdn-logo.png" alt="Invois TRA Icon" class="img-fluid" style="height: 60px;">
+                </div>
+            </div>
+
+            <h4 class="mt-2">How to Start?</h4>
+            <div class="list-group">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <b>Step 1:</b> Go to the <a href="https://mytax.hasil.gov.my/" target="_blank">Invoicing portal</a> and register new ERP to get the <b>ClientID</b> and <b>ClientSecret</b> for accessing the Portal API.
+                    </li>
+                    <li class="list-group-item">
+                        <b>Step 2:</b> Get valid <a href="https://sdk.myinvois.hasil.gov.my/signature/#digital-signing-certificate-profile" target="_blank">X.509 certificate</a> from <a href="https://www.mcmc.gov.my/en/sectors/digital-signature/list-of-licensees" target="_blank">Approved CA</a> to sign documents. Ensure that you have <b>Certificate in Pfx</b> file format.
+                    </li>
+                    <li class="list-group-item">
+                        <b>Step 3:</b> Add the relay URL to your invoice: <span class="fw-bold text-success" id="relay-url"></span>.<br />Save your invoice and click <b>[Relay]</b>. On your first use, you'll be redirected to the business setup page to integrate the Manager application with the MyInvois portal.
+                    </li>
+                </ul>
+            </div>
+
+            <h4 class="mt-2">Next Steps</h4>
+            <div class="list-group">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <b>Step 1:</b> Ensure all <b>TaxCodes</b> used are created in Manager.
+                    </li>
+                    <li class="list-group-item">
+                        <b>Step 2:</b> Ensure that all <b>Customer</b> Information is filled out completely.
+                    </li>
+                </ul>
+            </div>
+
+            <h4 class="mt-2 text-warning"><b>Attention</b></h4>
+            <p class="custom-lead">
+                This is an initial release focused on testing and ensuring all features function as expected.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUrl = window.location.origin + window.location.pathname;
+    if (currentUrl.endsWith('/')) {
+        currentUrl = currentUrl.slice(0, -1);
+    }
+    const relayUrl = currentUrl + '/relay';
+    document.getElementById('relay-url').textContent = relayUrl;
+</script>

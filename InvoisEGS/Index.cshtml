@@ -1,0 +1,790 @@
+﻿@using InvoisEGS.ApiClient.ApiModels
+@using InvoisEGS.ApiClient.XModels
+@model InvoisEGS.Models.SetupViewModel
+
+@{
+    ViewData["Title"] = "Setup Wizard";
+}
+
+<div class="container-fluid setup-container">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Invois Integration Setup</h2>
+        </div>
+    </div>
+
+    <form id="certInfoForm" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="Referrer" value="@Model.Referrer" />
+        <input type="hidden" name="BusinessDetailsJson" value="@Model.BusinessDetailJson" />
+        <input type="hidden" name="Api" value="@Model.Api" />
+        <input type="hidden" name="Token" value="@Model.Token" />
+        <input type="hidden" id="Certificate" name="Certificate" value="@Model.Certificate" />
+        <input type="hidden" id="PrivateKey" name="PrivateKey" value="@Model.PrivateKey" />
+        <input type="hidden" id="TaxPayerTTX" name="TaxPayerTTX" value="@Model.TaxPayerTTX" />
+
+        <div class="col-md-12 mb-4">
+            <div class="card card-custom">
+                <div class="card-header section-header">
+                    <h5 class="mb-0">Business Data Setup</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">This section helps you create or update custom fields and footers for Invois Integration.</p>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" id="backToManager" class="btn btn-secondary btn-sm" style="width: 200px; margin-right: 10px;" name="backToManager" onclick="window.location.href='@Model.Referrer'">Back to Manager</button>
+                        <button type="button" id="generateCustomField" class="btn btn-success btn-sm" style="width: 200px;">Update Business Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 mb-4">
+
+            <ul class="nav nav-tabs" id="setupTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="business-tab" data-bs-toggle="tab" data-bs-target="#business" type="button" role="tab">
+                        Business Information
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="integration-tab" data-bs-toggle="tab" data-bs-target="#integration" type="button" role="tab">
+                        Integration Setup
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-2" id="setupTabsContent">
+                <div class="tab-pane fade show active" id="business" role="tabpanel">
+
+                    <div class="card card-custom">
+                        <div class="card-body py-4">
+
+                            <div class="row">
+                                
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">TIN*</label>
+                                                <input asp-for="TaxPayerTIN" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Registration Name*</label>
+                                                <input asp-for="RegistrationName" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">ID Type*</label>
+                                                <select asp-for="TaxPayerIDType" class="form-control form-control-sm">
+                                                    <option value="NRIC">NRIC</option>
+                                                    <option value="BRN">BRN</option>
+                                                    <option value="PASSPORT">PASSPORT</option>
+                                                    <option value="ARMY">ARMY</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">ID Number*</label>
+                                                <input asp-for="TaxPayerIDNumber" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">SST*</label>
+                                                <input asp-for="TaxPayerSST" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div>
+                                        <hr />
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-12">
+
+                                    <div class="row">
+
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Account Agency Name*</label>
+                                                <input asp-for="AddAccountAgencyName" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Additional Account ID*</label>
+                                                <input asp-for="AddAccountID" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">
+                                                    Industry Class. Code*
+                                                    <a href="https://sdk.myinvois.hasil.gov.my/codes/msic-codes/" target="_blank">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                </label>
+                                                <input asp-for="IndustryClassificationCode" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Industry Classification Name*</label>
+                                                <input asp-for="IndustryClassificationName" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <div>
+                                        <hr />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">
+                                                    Country Id Code*
+                                                    <a href="https://sdk.myinvois.hasil.gov.my/codes/countries/" target="_blank">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                </label>
+                                                <input asp-for="CountryIdCode" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">
+                                                    State Code*
+                                                    <a href="https://sdk.myinvois.hasil.gov.my/codes/state-codes/" target="_blank">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                </label>
+                                                <input asp-for="CountrySubentityCode" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Postal Zone</label>
+                                                <input asp-for="PostalZone" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Contact Phone*</label>
+                                                <input asp-for="ContactTelephone" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Contact Email*</label>
+                                                <input asp-for="ContactElectronicMail" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">City Name*</label>
+                                                <input asp-for="CityName" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Address Line 1*</label>
+                                                <input asp-for="AddressLine1" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Address Line 2</label>
+                                                <input asp-for="AddressLine2" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-group text-left">
+                                                <label class="form-label">Address Line 3</label>
+                                                <input asp-for="AddressLine3" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="integration" role="tabpanel">
+                    <div class="card card-custom">
+
+                        <div class="card-body py-4">
+<div class="row">
+    <!-- Column 1: Integration Type -->
+    <div class="col-md-1 mb-3">
+        <div class="form-group text-left">
+            <label class="form-label" asp-for="@Model.IntegrationType">Integration Type</label>
+            <select asp-for="@Model.IntegrationType" class="form-control form-control-sm">
+                @foreach (var value in Enum.GetValues(typeof(IntegrationType)))
+                {
+                    <option value="@value">@value</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="mb-0">Document Settings</h6>
+            </div>
+            <div class="card-body py-2">
+                <div class="form-group text-left mb-2">
+                    <select asp-for="@Model.DocumentFormat" class="form-control form-control-sm">
+                        @foreach (var value in new[] {"JSON","XML"})
+                        {
+                            <option value="@value">@value</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group text-left">
+                    <select asp-for="@Model.DocumentVersion" class="form-control form-control-sm">
+                        @foreach (var value in new[] {"1.0","1.1"})
+                        {
+                            <option value="@value">@value</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Column 2: Client ID -->
+    <div class="col-md-4 mb-3">
+        <div class="form-group text-left">
+            <label class="form-label" asp-for="@Model.ClientId">Client ID</label>
+            <input asp-for="@Model.ClientId" class="form-control form-control-sm" />
+        </div>
+    </div>
+
+    <!-- Column 3: Client Secret -->
+    <div class="col-md-4 mb-3">
+        <div class="form-group text-left">
+            <label class="form-label" asp-for="@Model.ClientSecret">Client Secret</label>
+            <input asp-for="@Model.ClientSecret" class="form-control form-control-sm" />
+        </div>
+    </div>
+
+    <!-- Verify Credential Button (centered below the three columns) -->
+    <div class="col-md-12 mb-4 text-right">
+        <button type="button" id="verifyClientCredential" class="btn btn-success btn-sm">
+            <i class="fas fa-check"></i> Verify Credential
+        </button>
+    </div>
+
+<div>
+    <hr />
+
+</div>
+    <!-- Certificate Section -->
+    <!-- Column 1: Certificate Type -->
+    <div class="col-md-4 mb-3">
+        <div class="form-group text-left">
+            <label class="form-label">Certificate Type</label>
+            <select id="certificateType" class="form-control form-control-sm" disabled>
+                <option value="pfx">PFX/P12 Certificate</option>
+                <option value="pem">PEM Certificate</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Column 2: Certificate File -->
+    <div class="col-md-4 mb-3">
+        <div class="form-group text-left">
+            <label class="form-label">Certificate File</label>
+            <input type="file" id="certificateFile" name="certificateFile" 
+                   class="form-control form-control-sm" 
+                   accept=".pfx,.p12,.pem,.crt,.cer" disabled />
+        </div>
+    </div>
+
+    <!-- Column 3: Password/Private Key -->
+    <div class="col-md-4 mb-3">
+        <!-- PFX Password Section -->
+        <div id="passwordSection">
+            <div class="form-group text-left">
+                <label class="form-label">Certificate Password</label>
+                <input type="password" id="certificatePassword" name="certificatePassword" 
+                       class="form-control form-control-sm" disabled />
+            </div>
+        </div>
+        <!-- PEM Key Section -->
+        <div id="pemKeySection" class="d-none">
+            <div class="form-group text-left">
+                <label class="form-label">Private Key File</label>
+                <input type="file" id="privateKeyFile" name="privateKeyFile" 
+                       class="form-control form-control-sm" 
+                       accept=".key,.pem" disabled />
+            </div>
+        </div>
+    </div>
+
+    <!-- Verify Certificate Button (centered below the three columns) -->
+    <div class="col-md-12 mb-4 text-right">
+        <button type="button" id="verifyCertificate" class="btn btn-success btn-sm" disabled>
+            <i class="fas fa-check"></i> Verify Certificate
+        </button>
+    </div>
+
+</div>
+                            
+                            <hr />
+
+                            <div class="col-md-12 text-center">
+                                <button type="submit" id="saveIntegrationConfig" class="btn btn-primary btn-sm" style="width: 200px;" disabled>
+                                    <i class="fas fa-save"></i> Save Integration Config
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!-- Add this right after jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(async function() {
+            // State variables
+            let isCredentialsValid = false;
+            let isCertificateValid = false;
+
+            // Utility functions
+            async function showSuccessMessage(message) {
+                return await Swal.fire({
+                    title: 'Success!',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            }
+
+            async function showErrorMessage(message) {
+                return await Swal.fire({
+                    title: 'Error!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+
+            function showLoading(message = 'Processing...') {
+                Swal.fire({
+                    title: message,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            }
+
+            function hideLoading() {
+                Swal.close();
+            }
+
+            // Validation functions
+            function validateRequiredFields() {
+                const fields = {
+                    RegistrationName: $("#RegistrationName").val(),
+                    TaxPayerTIN: $("#TaxPayerTIN").val(),
+                    TaxPayerIDType: $("#TaxPayerIDType").val(),
+                    TaxPayerIDNumber: $("#TaxPayerIDNumber").val(),
+                    IndustryClassificationCode: $("#IndustryClassificationCode").val(),
+                    CityName: $("#CityName").val(),
+                    PostalZone: $("#PostalZone").val(),
+                    CountrySubentityCode: $("#CountrySubentityCode").val(),
+                    AddressLine1: $("#AddressLine1").val(),
+                    ContactElectronicMail: $("#ContactElectronicMail").val(),
+                    ContactTelephone: $("#ContactTelephone").val(),
+                    AddAccountID: $("#AddAccountID").val()
+                };
+            
+                console.log('Required Fields Values:', fields);
+                console.log('All Fields Valid:', Object.values(fields).every(val => val));
+                console.log('Credentials Valid:', isCredentialsValid);
+                console.log('Certificate Valid:', isCertificateValid);
+            
+                return Object.values(fields).every(val => val);
+            }
+
+            function validateClientCredentials() {
+                return $("#ClientId").val() &&
+                    $("#ClientSecret").val() &&
+                    $("#TaxPayerTIN").val();
+            }
+
+            function updateSaveButtonState() {
+                const requiredFieldsValid = validateRequiredFields();
+                console.log('Save Button State Check:', {
+                    requiredFieldsValid,
+                    isCredentialsValid,
+                    isCertificateValid
+                });
+                
+                const canSave = requiredFieldsValid && 
+                                isCredentialsValid && 
+                                isCertificateValid;
+                
+                console.log('Can Save:', canSave);
+                $("#saveIntegrationConfig").prop('disabled', !canSave);
+            }
+
+            // Event Handlers
+            $("#generateCustomField").off('click').on('click', async function() {
+                try {
+                    const apiEndpoint = '@Model.Api';
+                    const secretKey = '@Html.Raw(@Model.Token)';
+
+                    if (!apiEndpoint || !secretKey) {
+                        throw new Error('API Endpoint or Token is missing!');
+                    }
+
+                    showLoading('Updating business data...');
+                    const response = await fetch('setup/getcfdata');
+                    if (!response.ok) throw new Error('Failed to fetch data');
+
+                    const jsonData = await response.json();
+                    let successCount = 0, failureCount = 0;
+
+                    for (const [key, items] of Object.entries(jsonData)) {
+                        for (const item of items) {
+                            try {
+                                const apiResponse = await fetch(`${apiEndpoint}/${key}/key/${encodeURIComponent(item.Key)}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${secretKey}`
+                                    },
+                                    body: JSON.stringify(item)
+                                });
+
+                                if (apiResponse.ok) successCount++;
+                                else failureCount++;
+                            } catch {
+                                failureCount++;
+                            }
+                        }
+                    }
+                    await showSuccessMessage(`${successCount} successful, ${failureCount} failed.`);
+                } catch (error) {
+                    await showErrorMessage(error.message);
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            $("#DocumentVersion").on('change', function() {
+                const version = $(this).val();
+                const isCertRequired = version === "1.1";
+                
+                // Enable/disable certificate section based on version
+                $("#certificateType, #certificateFile, #certificatePassword").prop('disabled', !isCertRequired || !isCredentialsValid);
+                $("#verifyCertificate").prop('disabled', !isCertRequired || !isCredentialsValid);
+                
+                // Update validation logic
+                if (!isCertRequired) {
+                    isCertificateValid = true;
+                    $("#Certificate").val('BYPASS_CERTIFICATE');
+                    $("#PrivateKey").val('BYPASS_PRIVATE_KEY');
+                } else {
+                    isCertificateValid = false;
+                    $("#Certificate").val('');
+                    $("#PrivateKey").val('');
+                }
+                
+                updateSaveButtonState();
+            });
+
+            // Modify verifyClientCredential click handler
+            $("#verifyClientCredential").off('click').on('click', async function() {
+                try {
+                    if (!validateClientCredentials()) {
+                        throw new Error('Please enter both Client ID and Client Secret');
+                    }
+
+                    showLoading('Verifying credentials...');
+                    const response = await $.ajax({
+                        url: '/Setup/GetAccessToken',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            integrationType: $("#IntegrationType").val(),
+                            clientId: $("#ClientId").val(),
+                            clientSecret: $("#ClientSecret").val()
+                        })
+                    });
+
+                    if (!response.success) throw new Error(response.message || 'Verification failed');
+
+                    const tokenData = JSON.parse(response.data);
+                    const payload = JSON.parse(atob(tokenData.access_token.split('.')[1]));
+                    const taxpayerTIN = payload.TaxpayerTIN;
+                    const tin = $("#TaxPayerTIN").val();
+
+                    if (taxpayerTIN !== tin) {
+                        throw new Error(`TaxpayerTIN from token (${taxpayerTIN}) does not match TaxPayer ID (${tin})`);
+                    }
+
+                    await showSuccessMessage("Connection successful!");
+                    isCredentialsValid = true;
+                    // BYPASS: Auto set certificate as valid
+                    //isCertificateValid = true;
+                    //$("#Certificate").val('BYPASS_CERTIFICATE');
+                    //$("#PrivateKey").val('BYPASS_PRIVATE_KEY');
+                    
+                    //ori
+                    $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', false);
+                    $("#verifyClientCredential").prop('disabled', true);
+
+                    updateSaveButtonState();
+                } catch (error) {
+                    isCredentialsValid = false;
+                    await showErrorMessage(error.message);
+                    //ori
+                    $("#verifyClientCredential").prop('disabled', false);
+                    $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', true);
+
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            $("#certificateType").on('change', function() {
+                const selectedType = $(this).val();
+                if (selectedType === 'pem') {
+                    $("#pemKeySection").removeClass('d-none');
+                    $("#passwordSection").addClass('d-none');
+                    $("#privateKeyFile").prop('disabled', false);
+                    $("#certificatePassword").prop('disabled', true);
+                } else {
+                    $("#pemKeySection").addClass('d-none');
+                    $("#passwordSection").removeClass('d-none');
+                    $("#privateKeyFile").prop('disabled', true);
+                    $("#certificatePassword").prop('disabled', false);
+                }
+            });
+
+            $("#verifyCertificate").off('click').on('click', async function() {
+                try {
+                    const fileInput = $("#certificateFile")[0];
+                    const certificateType = $("#certificateType").val();
+                    const tin = $("#TaxPayerTIN").val();
+                    const password = certificateType === 'pfx' ? $("#certificatePassword").val() : null;
+                    const privateKeyFile = certificateType === 'pem' ? $("#privateKeyFile")[0].files[0] : null;
+                    
+                    if (!fileInput.files[0]) {
+                        throw new Error('Please select a certificate file');
+                    }
+                    
+                    // Validasi berbeda untuk PFX dan PEM
+                    if (certificateType === 'pfx' && !password) {
+                        throw new Error('Please enter the certificate password');
+                    } else if (certificateType === 'pem' && !privateKeyFile) {
+                        throw new Error('Please select a private key file');
+                    }
+                    
+                    if (!tin) {
+                        throw new Error('Please enter TIN number first');
+                    }
+                    
+                    showLoading('Verifying certificate...');
+                    const formData = new FormData();
+                    formData.append('certificateFile', fileInput.files[0]);
+                    formData.append('certificateType', certificateType);
+                    formData.append('taxpayerTIN', tin);
+                    
+                    // Append sesuai tipe sertifikat
+                    if (certificateType === 'pfx') {
+                        formData.append('password', password);
+                    } else {
+                        formData.append('privateKeyFile', privateKeyFile);
+                    }
+                    
+                    const response = await $.ajax({
+                        url: '/Setup/VerifyCertificate',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false
+                    });
+                    
+                    if (!response.success) {
+                        throw new Error(response.message || 'Certificate verification failed');
+                    }
+                    
+                    if (response.data.isValid) {
+                        // Store certificate and private key values
+                        $("#Certificate").val(response.data.certificateBase64);
+                        $("#PrivateKey").val(response.data.privateKeyBase64);
+                        console.log('Private Key stored:', response.data.privateKeyBase64 ? 'Yes' : 'No');
+                        
+                        isCertificateValid = true;
+                        updateSaveButtonState();
+
+                        const certDetails = `
+                    <div style="text-align: center; font-family: monospace; font-size: 12px;">
+                        <strong>Subject:</strong><br/> 
+                        ${response.data.subject}<br/><br/>
+                        
+                        <strong>Issuer:</strong><br/>
+                        ${response.data.issuer}<br/><br/>
+                        
+                        <strong>Valid From:</strong>${new Date(response.data.validFrom).toLocaleDateString()}<br/>
+                        <strong>Valid To:</strong>${new Date(response.data.validTo).toLocaleDateString()}<br/>
+                        <strong>Serial Number:</strong>${response.data.serialNumber}<br/><br/>
+                        
+                        <strong>Status:</strong><br/>
+                        <span style="font-family: monospace; font-size: 16px; color: ${response.data.isValid ? 'green' : 'red'}">
+                            ${response.data.isValid ? 'Valid' : 'Invalid'}
+                        </span>
+                    </div>`;
+                    
+                    await Swal.fire({
+                        title: 'Certificate Details',
+                        html: certDetails,
+                        icon: response.data.isValid ? 'success' : 'warning',
+                        confirmButtonText: 'OK',
+                        width: '600px',
+                        customClass: {
+                            popup: 'swal-wide',
+                            content: 'text-center',
+                            title: 'fs-6'
+                        }
+                    });
+                    }  // <-- Added this closing brace
+
+                } catch (error) {
+                    $("#Certificate").val('');
+                    isCertificateValid = false;
+                    updateSaveButtonState();
+                    await showErrorMessage(error.message);
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            $("#saveIntegrationConfig").off('click').on('click', async function(e) {
+                e.preventDefault();
+                try {
+                    if (!validateRequiredFields()) {
+                        throw new Error('Please fill in all required fields');
+                    }
+
+                    if (!$("#Certificate").val()) {
+                        throw new Error('Certificate data is missing. Please verify the certificate again.');
+                    }
+
+                    if (!$("#PrivateKey").val()) {
+                        throw new Error('Private key is missing. Please verify the certificate again.');
+                    }
+
+                    showLoading('Saving configuration...');
+                    const form = $('#certInfoForm')[0];
+                    const formData = new FormData(form);
+
+                    // Log form data before submission
+                    console.log('Private Key before submission:', $("#PrivateKey").val() ? 'Present' : 'Missing');
+                    const response = await $.ajax({
+                        url: '/Setup/UpdateBusinessDetail',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false
+                    });
+
+                    const apiDetails = typeof response === 'string' ? JSON.parse(response) : response;
+                    if (!apiDetails.ApiBusinessDetails) throw new Error('Invalid response structure');
+
+                    const { ApiUrl, SecretKey, Payload } = apiDetails.ApiBusinessDetails;
+                    const apiResponse = await fetch(ApiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SecretKey}`
+                        },
+                        body: Payload
+                    });
+
+                    if (!apiResponse.ok) {
+                        const errorText = await apiResponse.text();
+                        throw new Error(`API Error: ${errorText}`);
+                    }
+
+                    await showSuccessMessage('Configuration saved successfully!');
+                    window.location.href = $('input[name="Referrer"]').val();
+                } catch (error) {
+                    await showErrorMessage(error.message);
+                } finally {
+                    hideLoading();
+                }
+            });
+
+            // Form field event handlers
+            $("#ClientId, #ClientSecret, #TaxPayerTIN").on('input change', function() {
+                if (isCertificateValid && $("#Certificate").val() && $("#PrivateKey").val()) {
+                    // Don't clear certificate data if it's already validated
+                    return;
+                }
+                
+                isCredentialsValid = false;
+                isCertificateValid = false;
+                $("#verifyClientCredential").prop('disabled', !validateClientCredentials());
+                $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', true);
+                updateSaveButtonState();
+            });
+
+            // Initial state setup
+            $("#verifyClientCredential").prop('disabled', !validateClientCredentials());
+            $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', true);
+            updateSaveButtonState();
+        });
+    </script>
+}
+
+
+
+

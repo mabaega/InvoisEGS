@@ -1,0 +1,767 @@
+﻿@using System.Xml.Serialization
+@using InvoisEGS.ApiClient.ApiModels
+@using InvoisEGS.ApiClient.XModels
+@using InvoisEGS.Models
+@using InvoisEGS.Utilities
+@using Newtonsoft.Json
+@using System.Xml
+@using System.Text
+@model RelayDataViewModel
+
+@{
+    //Layout = null;
+    var submitDocumentRequest = JsonConvert.DeserializeObject<SubmitDocumentRequest>(Model.SubmitRequestJson);
+    string documentContent = submitDocumentRequest?.Documents != null && 
+                           submitDocumentRequest.Documents.Any() && 
+                           !string.IsNullOrEmpty(submitDocumentRequest.Documents[0].Document)
+        ? System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(submitDocumentRequest.Documents[0].Document))
+        : string.Empty;
+
+    MyInvoice InvObject;
+    string formattedContent = string.Empty;
+    string docFormat = "XML"; 
+
+    if (!string.IsNullOrEmpty(documentContent))
+    {
+        docFormat = submitDocumentRequest.Documents[0].Format?.ToUpper();
+        if (docFormat == "JSON")
+        {
+            // Handle and format JSON
+            var jsonObj = JsonConvert.DeserializeObject(documentContent);
+            formattedContent = JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+            var rootObject = JsonConvert.DeserializeObject<NamespaceRoot>(documentContent);
+            InvObject = rootObject?.MyInvoice?.FirstOrDefault();
+        }
+        else
+        {
+            // Handle and format XML
+            var doc = new XmlDocument();
+            doc.LoadXml(documentContent);
+            using var memStream = new MemoryStream();
+            using (var xmlWriter = XmlWriter.Create(memStream, new XmlWriterSettings 
+            { 
+                Indent = true,
+                IndentChars = "    ",
+                NewLineChars = "\n",
+                NewLineHandling = NewLineHandling.Replace,
+                Encoding = new UTF8Encoding(false)
+            }))
+            {
+                doc.Save(xmlWriter);
+            }
+
+            memStream.Position = 0;
+            using var streamReader = new StreamReader(memStream, new UTF8Encoding(false));
+            formattedContent = streamReader.ReadToEnd();
+
+            // Deserialize XML
+            var serializer = new XmlSerializer(typeof(MyInvoice));
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            ns.Add("", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2");
+
+            using (var stringReader = new StringReader(documentContent))
+            {
+                var xmlReader = XmlReader.Create(stringReader);
+                InvObject = (MyInvoice)serializer.Deserialize(xmlReader);
+            }
+        }
+    }
+    else
+    {
+        InvObject = null;
+        formattedContent = "No data available";
+    }
+
+    var InvTypeString = InvObject?.InvoiceTypeCode != null && int.TryParse(InvObject?.InvoiceTypeCode[0].Value, out int typeCode)
+                                                          ? Enum.GetName(typeof(InvoiceTypeCodeEnum), typeCode)
+                                                          : "";
+
+    InvoiceSummary InvoiceSummary = !string.IsNullOrEmpty(Model.InvoiceSummaryJson) 
+        ? JsonConvert.DeserializeObject<InvoiceSummary>(Model.InvoiceSummaryJson)
+        : null;
+}
+
+
+    <main class="flex-grow-1">
+        <div class="container py-1">
+            <div class="text-center mb-1">
+                @* <img src="~/images/logo.png" alt="InvoisEGS" class="img-fluid" style="max-width: 60px;" /> *@
+                <h3 class="mb-1">Manager Io - MyInvois Reporting</h3>
+            <div class="text-warning mb-4">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>"Please ensure that the Invoice to be processed is complete, correct and error-free."</span>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Main Invoice Content -->
+                <div class="col-lg-9">
+                    <form id="relayForm" method="POST">
+                        <!-- Include hidden inputs for all other fields -->
+                        <input type="hidden" name="Referrer" value="@Model.Referrer" />
+                        <input type="hidden" name="FormKey" value="@Model.FormKey" />
+                        <input type="hidden" name="Api" value="@Model.Api" />
+                        <input type="hidden" name="Token" value="@Model.Token" />
+                        <input type="hidden" name="InvoiceJson" value="@Model.InvoiceJson" />
+                        <input type="hidden" name="InvoiceSummaryJson" value="@Model.InvoiceSummaryJson" />
+                        <input type="hidden" name="InvoiceJson" value="@Model.InvoiceJson" />
+                        <input type="hidden" name="IntegrationType" value="@Model.IntegrationType" />
+                        <input type="hidden" name="ClientID" value="@Model.ClientID" />
+                        <input type="hidden" name="ClientSecret" value="@Model.ClientSecret" />
+                        <input type="hidden" name="SignServiceUrl" value="@Model.SignServiceUrl" />
+                        <input type="hidden" name="IssueDate" value="@Model.IssueDate" />
+                        <input type="hidden" name="IssueTime" value="@Model.IssueTime" />
+                        <input type="hidden" name="SubmitRequestJson" value="@Model.SubmitRequestJson" />
+                        <input type="hidden" name="DocumentFormat" value="@Model.DocumentFormat" />
+                        <input type="hidden" name="DocumentVersion" value="@Model.DocumentVersion" />
+
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center">
+                                <h5 class="card-title mb-0">Document Information</h5>
+                            </div>
+                            <div class="card-body" style="min-height: 605px;">
+
+                                <div class="row">
+                                     <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="DocumentType" class="form-label">Document Type:</label>
+                                            <input type="text" class="form-control form-control-sm text-center" 
+                                                   id="DocumentType" 
+                                                   name="DocumentType"
+                                               value="@InvTypeString"
+                                               readonly>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                        <label for="ListVersionID" class="form-label">Document Version:</label>
+                                        <input type="text" class="form-control form-control-sm text-center" id="ListVersionID" name="ListVersionID" value="@InvObject?.InvoiceTypeCode[0].ListVersionID" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="DateTimeIssued" class="form-label">DateTime Issued:</label>
+                                            <input type="text" class="form-control form-control-sm text-center" 
+                                                   id="DateTimeIssued" 
+                                                   name="DateTimeIssued" 
+                                                   value="@(InvObject?.IssueDate[0]?.Value != null ? $"{InvObject?.IssueDate[0]?.Value}T{InvObject?.IssueTime[0]?.Value}" : "")" 
+                                                   readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="InternalId" class="form-label">Internal Id:</label>
+                                            <input type="text" class="form-control form-control-sm text-center" id="InternalId" name="InternalId" value="@InvObject?.ID[0].Value" readonly>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <label for="ReceiverName" class="form-label">Party Registration Name:</label>
+                                            <input type="text" class="form-control form-control-sm text-center" id="ReceiverName" name="ReceiverName" value="@InvObject?.AccountingCustomerParty[0]?.Party[0]?.PartyLegalEntity[0]?.RegistrationName[0]?.Value" readonly>
+                                        </div>
+                                    </div>
+                                    @{
+                                    if (InvTypeString != "Invoice")
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="mb-2">
+                                                <label for="ReceiverName" class="form-label">BillingReference ID:</label>
+                                                <input type="text" class="form-control form-control-sm text-center" id="BillRefID" value="@InvObject?.BillingReference[0]?.AdditionalDocumentReference[0]?.ID[0].Value" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-2">
+                                                <label for="ReceiverName" class="form-label">BillingReference UUID:</label>
+                                                <input type="text" class="form-control form-control-sm text-center" id="BillRefUUID" value="@InvObject?.BillingReference[0]?.AdditionalDocumentReference[0]?.UUID[0].Value" readonly>
+                                                    
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="CurrencyCode" class="form-label">Currency Code:</label>
+                                            <input type="text" class="form-control form-control-sm text-center" id="CurrencyCode" name="CurrencyCode" value="@Model.DocumentCurrencyCode" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="NetAmount" class="form-label">Net Amount:</label>
+                                        <input type="text" class="form-control form-control-sm text-right" id="NetAmount" name="NetAmount" value="@InvObject.LegalMonetaryTotal[0].TaxExclusiveAmount[0].Value.ToString("N2")" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="TaxAmount" class="form-label">Tax Amount:</label>
+                                            <input type="text" class="form-control form-control-sm text-right" id="TaxAmount" name="TaxAmount" value="@InvObject.TaxTotal[0].TaxAmount[0].Value.ToString("N2")" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="mb-2">
+                                            <label for="TotalAmount" class="form-label">Total Amount:</label>
+                                        <input type="text" class="form-control form-control-sm text-right" id="TotalAmount" name="TotalAmount" value="@InvObject.LegalMonetaryTotal[0].PayableAmount[0].Value.ToString("N2")" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr style="margin: 5px 0px;" />
+
+                                <!-- Tab Navigation -->
+                                <ul class="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="nav-manager-tab" data-bs-toggle="tab" href="#nav-manager" role="tab" aria-controls="nav-manager" aria-selected="true">Manager Invoice</a>
+                                    </li>
+                                    <li class="nav-item">
+                                    <a class="nav-link active" id="nav-json-tab" data-bs-toggle="tab" href="#nav-json" role="tab" aria-controls="nav-json" aria-selected="false">MyInvois @docFormat</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="nav-response-tab" data-bs-toggle="tab" href="#nav-response" role="tab" aria-controls="nav-response" aria-selected="false">Server Response</a>
+                                    </li>
+                                </ul>
+                                <!-- End Tab Navigation -->
+                                <!-- Tab Content -->
+                                <div class="tab-content" id="nav-tabContent">
+                                    <div class="tab-pane fade" id="nav-manager" role="tabpanel" aria-labelledby="nav-manager-tab">
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm" id="textareaManager" name="Invoice" rows="10" readonly wrap="off" style="margin-top: 10px; min-height: 235px; height: 235px;">
+                                                @{
+                                                    if (Model.InvoiceJson != null)
+                                                    {
+                                                        try
+                                                        {
+                                                            var formattedJson = Utils.SerializeObject(JsonConvert.DeserializeObject(Model.InvoiceJson));
+                                                            @Html.Raw(formattedJson)
+                                                            ;
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            <text>Error processing the Manager invoice: @ex.Message</text>
+                                                            ;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>No data available</text>
+                                                        ;
+                                                    }
+                                                }
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                <div class="tab-pane fade show active" id="nav-json" role="tabpanel" aria-labelledby="nav-json-tab">
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm" id="textareaUbl" name="Invoice" rows="10" readonly wrap="off" style="margin-top: 17px; min-height: 235px; height: 235px;">
+                                                @{
+                                                if (formattedContent != null)
+                                                    {
+                                                        try
+                                                        {
+                                                        @Html.Raw(formattedContent)
+                                                            ;
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            <text>Error processing the MyInvoice: @ex.Message</text>
+                                                            ;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>No data available</text>
+                                                        ;
+                                                    }
+                                                }
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="nav-response" role="tabpanel" aria-labelledby="nav-response-tab">
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm" id="textareaResponse" name="PortalResult" rows="10" readonly wrap="off" style="margin-top: 10px; min-height: 235px; height: 235px;">
+                                                @{
+                                                    if (!string.IsNullOrEmpty(Model.ServerResponseJson))
+                                                    {
+                                                        <text>Invoice Error : </text>
+                                                        @Model.ServerResponseJson
+                                                        ;
+                                                    }
+                                                }
+                                                </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Tab Content -->
+
+                                <hr />
+
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                    <button type="button" class="btn btn-secondary mt-1" style="width: 200px;" onclick="window.location.href='@Model.Referrer'">Back to Manager</button>
+                                    </div>
+                                    <div id="buttonsContainer">
+                                        <button type="button" 
+                                                class="btn btn-success mt-1"
+                                                id="updateStatusButton" 
+                                                style="width: 200px; display: @(InvoiceSummary != null &&
+                                            !string.IsNullOrEmpty(InvoiceSummary?.SubmissionUid) ? "inline-block" : "none")">
+                                            <i class="fas fa-sync"></i> Update Status
+                                        </button>
+                                        <button type="button" 
+                                                id="submitInvoiceButton"
+                                                class="btn btn-primary mt-1"
+                                                style="display: @(string.IsNullOrEmpty(InvoiceSummary?.SubmissionUid) || 
+                                                                InvoiceSummary?.DocumentStatus.ToUpper() == "INVALID" ? "inline-block" : "none")">
+                                            <i class="fas fa-paper-plane"></i> 
+                                            <span>Submit Document</span>
+                                        </button>
+                                        <!-- Modal for signature -->
+                                        <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="signatureModalLabel">Document Signature</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Certificate Information</label>
+                                                            <textarea id="certificateInfo" class="form-control" rows="4" wrap="off" readonly></textarea>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="tokenPin" class="form-label">Token PIN</label>
+                                                            <input type="password" class="form-control" id="tokenPin" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" c
+                                                            lass="btn btn-primary" 
+                                                            id="signAndSubmitButton" 
+                                                            onclick="signAndSubmit()"
+                                                            @(InvoiceSummary == null ||
+                                                                string.IsNullOrEmpty(InvoiceSummary?.DocumentStatus) ||
+                                                                InvoiceSummary?.DocumentStatus.ToUpper() == "VALID" ? "" : "disabled")>
+                                                            <i class="fas fa-signature"></i>
+                                                            <span>Sign and Submit</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-3">
+                    <!-- Side widget -->
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h5 class="card-title mb-0">Submission Info</h5>
+                        </div>
+                        <div class="card-body" style="min-height: 605px;">
+                            <!-- QR Code Section -->
+                            <div id="qrCodeImage"
+                                 style="background-color: white; width: 180px; height: 180px; margin: 10px auto; border: 1px solid var(--bs-border-color-translucent); display: flex; align-items: center; justify-content: center;">
+                                <!-- QR code image will render here -->
+                            </div>
+                            <!-- QR Code URL -->
+                            <div class="text-break text-center"
+                                 style="min-height: 20px; margin-top: 18px; font-family: monospace; @(string.IsNullOrEmpty(InvoiceSummary?.PublicUrl) 
+                                    ? "color: #fff;" 
+                                    : "color: green;") font-weight: bold;">
+                                @if (!string.IsNullOrEmpty(InvoiceSummary?.PublicUrl))
+                                {
+                                    <a href="@InvoiceSummary?.PublicUrl" target="_blank" style="color: inherit; text-decoration: none;">
+                                        <i class="fas fa-external-link-alt me-2"></i>View eInvoice
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span><i class="fas fa-link-slash me-2"></i>No URL Available</span>
+                                }
+                            </div>
+                            <hr />
+                                                        <!-- Document Status -->
+                            @{
+                                var status = InvoiceSummary?.DocumentStatus?.ToUpper() ?? "";
+                                var divStyle = status switch
+                                {
+                                "SUBMITTED" => "min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #8f4eef; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #8f4eef;",
+                                "INVALID" => "min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #e72000; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #e72000;",
+                                "REJECTED" => "min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #e72000; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #e72000;",
+                                "VALID" => "min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #018524; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #018524;",
+                                "CANCELLED" => "min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #747775; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #747775;",
+                                    _ => "min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; border: 1px solid var(--bs-border-color-translucent); padding: 6px; border-radius: 5px; background-color: var(--bs-card-cap-bg);"
+                                };
+                            }
+                            <div id="documentStatus" class="text-break text-center" style="@divStyle">
+                                @if (!string.IsNullOrEmpty(status))
+                                {
+                                    @status
+                                }
+                                else
+                                {
+                                    <span>No status available</span>
+                                }
+                            </div>
+                            <hr />
+                            <!-- Invoice Summary JSON -->
+                            <textarea class="form-control form-control-sm"
+                                      id="summaryTextarea"
+                                      name="summaryTextarea"
+                                      rows="9"
+                                      readonly
+                                      wrap="off"
+                                      style="min-height: 235px; height: 235px; font-family: monospace;">
+                                @{
+                                    if (Model.InvoiceSummaryJson != null)
+                                    {
+                                        try
+                                        {
+                                            var formattedJson = JsonConvert.SerializeObject(JsonConvert.DeserializeObject(Model.InvoiceSummaryJson),Newtonsoft.Json.Formatting.Indented);
+                                            @Html.Raw(formattedJson)
+                                            ;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            <text>Error processing the invoice summary: @ex.Message</text>
+                                            ;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <text>No summary data available</text>
+                                        ;
+                                    }
+                                }
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="~/js/qrcode.js"></script>
+    
+<script>
+    let signatureModal;
+
+    function showLoading(message = 'Processing...') {
+        Swal.fire({
+            title: message,
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    function hideLoading() {
+        Swal.close();
+    }
+
+    function generateQRCode(text) {
+        new QRCode(document.getElementById("qrCodeImage"), {
+            text: text,
+            width: 160,
+            height: 160,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.L
+        });
+    }
+
+    function handleError(error) {
+        console.error('Error:', error);
+                // Make sure loading is hidden before showing error
+        hideLoading();
+        // Show only serverResponse in textarea
+        if (error.serverResponse) {
+            try {
+                const parsedJson = JSON.parse(error.serverResponse);
+                $('#textareaResponse').val(JSON.stringify(parsedJson, null, 2));
+            } catch (e) {
+                $('#textareaResponse').val(error.serverResponse);
+            }
+        }
+                
+        // Extract error message from the response
+        let errorMessage = '';
+        if (error.serverResponse) {
+            try {
+                const parsedJson = JSON.parse(error.serverResponse);
+                errorMessage = parsedJson.error?.details?.[0]?.message || 
+                             parsedJson.error?.message ||
+                             parsedJson.message ||
+                             JSON.stringify(parsedJson);
+            } catch (e) {
+                errorMessage = error.serverResponse;
+            }
+        } else {
+            errorMessage = error.message || 'An unexpected error occurred';
+        }
+
+        // Show error message in alert after a short delay
+        setTimeout(() => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                confirmButtonText: 'OK'
+            });
+        }, 100);
+    }
+
+    async function submitToServer() {
+        try {
+            showLoading('Submitting document...');
+            const form = $('#relayForm')[0];
+            const formData = new FormData(form);
+            const url = '@Url.Action("AjaxSubmitInvoice", "Relay")';
+
+            const response = await $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json'
+            });
+
+            // Debug: Log response
+            console.log('Response:', response);
+
+            if (response.code !== "Accepted") {
+                handleError(response);
+                return;
+            }
+
+            updateUIElements(response);
+            await showSuccessMessage(`Document successfully submitted`);
+            //await showSuccessMessage(`Document successfully submitted (ID: ${response.invoiceSummary.submissionId || 'N/A'})`);
+            if (response.apiInvoice) {
+                await updateManagerInvoice(response.apiInvoice);
+            }
+
+        } catch (error) {
+            handleError(error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function updateDocumentStatus() {
+        try {
+            showLoading('Getting Document Status...');
+            const formData = new FormData($('#relayForm')[0]);
+
+            const response = await $.ajax({
+                url: '@Url.Action("AjaxUpdateStatus", "Relay")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json'
+            });
+
+            updateUIElements(response);
+
+            if (response.code !== "Success") {
+                handleError(response);
+                return;
+            }
+
+            await showSuccessMessage(`Document status successfully retrieved`);
+            //await showSuccessMessage(`Document status successfully retrieved (Status: ${response.invoiceSummary.overallStatus || 'N/A'})`);
+            
+            if (response.apiInvoice) {
+                await updateManagerInvoice(response.apiInvoice);
+            }
+
+        } catch (error) {
+            handleError(error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function updateUIElements(data) {
+        // Handle response textarea update
+        if (data.serverResponse) {
+            try {
+                const parsedJson = JSON.parse(data.serverResponse);
+                $('#textareaResponse').val(JSON.stringify(parsedJson, null, 2));
+            } catch (e) {
+                console.warn('Failed to parse server response:', e);
+                $('#textareaResponse').val(data.serverResponse);
+            }
+        }
+
+        // Handle invoice summary updates
+        if (data.invoiceSummary) {
+            $('input[name="InvoiceSummaryJson"]').val(JSON.stringify(data.invoiceSummary));
+            $('#summaryTextarea').val(JSON.stringify(data.invoiceSummary, null, 2));
+
+            if (data.invoiceSummary.documentStatus) {
+                const status = (data.invoiceSummary.documentStatus || '').toUpperCase();
+                let divStyle = '';
+
+                switch (status) {
+                    case 'SUBMITTED':
+                        divStyle = 'min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #8f4eef; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #8f4eef;';
+                        break;
+                    case 'INVALID':
+                    case 'REJECTED':
+                        divStyle = 'min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #e72000; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #e72000;';
+                        break;
+                    case 'VALID':
+                        divStyle = 'min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #018524; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #018524;';
+                        break;
+                    case 'CANCELLED':
+                        divStyle = 'min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; color: #fff; background-color: #747775; font-weight: bold; padding: 6px; border-radius: 5px; border: 1px solid #747775;';
+                        break;
+                    default:
+                        divStyle = 'min-height: 20px; word-wrap: break-word; overflow-wrap: break-word; font-family: monospace; border: 1px solid var(--bs-border-color-translucent); padding: 6px; border-radius: 5px; background-color: var(--bs-card-cap-bg);';
+                }
+
+                const documentStatus = document.getElementById('documentStatus');
+                documentStatus.setAttribute('style', `${divStyle} text-break text-center`);
+                documentStatus.textContent = status || 'No status available';
+            }
+
+            // Fix button visibility logic
+            const submitButton = document.getElementById('submitInvoiceButton');
+            const updateButton = document.getElementById('updateStatusButton');
+
+            // Show submit button only if no submissionUid or status is INVALID
+            if (submitButton) {
+                submitButton.style.display = (!data.invoiceSummary.submissionUid || 
+                    data.invoiceSummary.documentStatus?.toUpperCase() === 'INVALID')
+                    ? 'inline-block' : 'none';
+            }
+
+            // Show update button if we have both submissionUid and any status
+            if (updateButton) {
+                updateButton.style.display = (data.invoiceSummary.submissionUid && 
+                    data.invoiceSummary.documentStatus)
+                    ? 'inline-block' : 'none';
+            }
+
+            $('#qrCodeImage').empty();
+
+            console.log("data url:",data.publicUrl);
+
+            console.log("sumary Url:", data.invoiceSummary.publicUrl);
+
+            if (data.publicUrl) {
+                generateQRCode(data.publicUrl);
+                $('.text-break:not(#documentStatus)').html(`<a href="${data.publicUrl}" target="_blank" style="color: inherit; text-decoration: none;">
+                    <i class="fas fa-external-link-alt me-2"></i>View eInvoice
+                </a>`);
+            } else {
+                $('.text-break:not(#documentStatus)').html(`<span><i class="fas fa-link-slash me-2"></i>No URL Available</span>`);
+            }
+        }
+    }
+
+    async function updateManagerInvoice(apiInvoice) {
+        try {
+            showLoading('Updating Manager...');
+            const response = await fetch(apiInvoice.apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiInvoice.secretKey}`
+                },
+                body: apiInvoice.payload
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update Manager invoice');
+            }
+
+            const responseText = await response.text();
+            let responseData;
+            try {
+                responseData = responseText ? JSON.parse(responseText) : {};
+            } catch (e) {
+                responseData = { message: responseText || 'Update successful (no response content)' };
+            }
+
+            await showSuccessMessage(`Successfully updated invoice in Manager\nResponse: ${JSON.stringify(responseData, null, 2)}`);
+            document.querySelector('#nav-response-tab').click();
+
+        } catch (error) {
+            handleError(error);
+        } finally {
+            hideLoading();
+        }
+    }
+       
+
+    async function showSuccessMessage(message) {
+        await Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: message,
+            confirmButtonText: 'OK'
+        });
+    }
+
+    async function showErrorMessage(message) {
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: message,
+            confirmButtonText: 'OK'
+        });
+    }
+
+    async function handleSubmit(e) {
+        if (e) e.preventDefault();
+        await submitToServer();
+    }
+
+    $(document).ready(function() {
+        document.getElementById('submitInvoiceButton').addEventListener('click', handleSubmit);
+
+        const updateStatusButton = document.getElementById('updateStatusButton');
+        if (updateStatusButton) {
+            updateStatusButton.removeEventListener('click', updateDocumentStatus);
+            updateStatusButton.addEventListener('click', updateDocumentStatus);
+        }
+
+        // Generate QR code on page load if public URL exists
+        const publicUrl = '@InvoiceSummary?.PublicUrl';
+        if (publicUrl) {
+            generateQRCode(publicUrl);
+        }
+    });
+</script>
+
+
+
+
+
+    

@@ -1,0 +1,84 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Validation Required";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg rounded p-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        @if (Model.ValidationErrors != null && Model.ValidationErrors.Any())
+                        {
+                        <div class="display-4 mb-4">
+                           <h5>
+                                <i class="fas fa-exclamation-circle me-2 text-warning"></i>
+                                Please complete the following information
+                           </h5>
+                        </div>
+
+                            <div class="validation-alert">
+                                
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var error in Model.ValidationErrors)
+                                    {
+                                        <li class="list-group-item border-0 text-start">
+                                            <i class="fas fa-chevron-right opacity-75 me-2"></i>
+                                            @error
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Referrer))
+                    {
+                        <div class="text-center mt-4">
+                            <a href="@Model.Referrer" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Invoice
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .validation-alert {
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        border-radius: var(--bs-border-radius);
+        padding: 1.5rem;
+        border: 1px solid var(--bs-border-color);
+    }
+
+    .list-group-item {
+        background-color: transparent;
+        color: inherit;
+    }
+
+    .card {
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+    }
+
+    .btn-outline-secondary {
+        border-color: var(--bs-border-color);
+        color: var(--bs-body-color);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: var(--bs-secondary);
+        border-color: var(--bs-secondary);
+        color: var(--bs-light);
+    }
+
+    .fa-chevron-right {
+        color: var(--bs-warning);
+    }
+</style>

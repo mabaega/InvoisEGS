@@ -1,0 +1,193 @@
+      "UBLExtensions": [
+        {
+          "UBLExtension": [
+            {
+              "ExtensionURI": [
+                {
+                  "_": "urn:oasis:names:specification:ubl:dsig:enveloped:xades"
+                }
+              ],
+              "ExtensionContent": [
+                {
+                  "UBLDocumentSignatures": [
+                    {
+                      "SignatureInformation": [
+                        {
+                          "ID": [
+                            {
+                              "_": "urn:oasis:names:specification:ubl:signature:1"
+                            }
+                          ],
+                          "ReferencedSignatureID": [
+                            {
+                              "_": "urn:oasis:names:specification:ubl:signature:Invoice"
+                            }
+                          ],
+                          "Signature": [
+                            {
+                              "Id": "signature",
+                              "Object": [
+                                {
+                                  "QualifyingProperties": [
+                                    {
+                                      "Target": "signature",
+                                      "SignedProperties": [
+                                        {
+                                          "Id": "id-xades-signed-props",
+                                          "SignedSignatureProperties": [
+                                            {
+                                              "SigningTime": [
+                                                {
+                                                  "_": "2024-07-23T15:14:54Z"
+                                                }
+                                              ],
+                                              "SigningCertificate": [
+                                                {
+                                                  "Cert": [
+                                                    {
+                                                      "CertDigest": [
+                                                        {
+                                                          "DigestMethod": [
+                                                            {
+                                                              "_": "",
+                                                              "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                                            }
+                                                          ],
+                                                          "DigestValue": [
+                                                            {
+                                                              "_": "KKBSTyiPKGkGl1AFqcPziKCEIDYGtnYUTQN4ukO7G40="
+                                                            }
+                                                          ]
+                                                        }
+                                                      ],
+                                                      "IssuerSerial": [
+                                                        {
+                                                          "X509IssuerName": [
+                                                            {
+                                                              "_": "CN=Trial LHDNM Sub CA V1, OU=Terms of use at http://www.posdigicert.com.my, O=LHDNM, C=MY"
+                                                            }
+                                                          ],
+                                                          "X509SerialNumber": [
+                                                            {
+                                                              "_": "162880276254639189035871514749820882117"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "KeyInfo": [
+                                {
+                                  "X509Data": [
+                                    {
+                                      "X509Certificate": [
+                                        {
+                                          "_": "MIIFlDCCA3ygAwIBAyw=="
+                                        }
+                                      ],
+                                      "X509SubjectName": [
+                                        {
+                                          "_": "CN=Trial LHDNM Sub CA V1, OU=Terms of use at http://www.posdigicert.com.my, O=LHDNM, C=MY"
+                                        }
+                                      ],
+                                      "X509IssuerSerial": [
+                                        {
+                                          "X509IssuerName": [
+                                            {
+                                              "_": "CN=Trial LHDNM Sub CA V1, OU=Terms of use at http://www.posdigicert.com.my, O=LHDNM, C=MY"
+                                            }
+                                          ],
+                                          "X509SerialNumber": [
+                                            {
+                                              "_": "162880276254639189035871514749820882117"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "SignatureValue": [
+                                {
+                                  "_": "QTvntg4Hg=="
+                                }
+                              ],
+                              "SignedInfo": [
+                                {
+                                  "SignatureMethod": [
+                                    {
+                                      "_": "",
+                                      "Algorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+                                    }
+                                  ],
+                                  "Reference": [
+                                    {
+                                      "Type": "http://uri.etsi.org/01903/v1.3.2#SignedProperties",
+                                      "URI": "#id-xades-signed-props",
+                                      "DigestMethod": [
+                                        {
+                                          "_": "",
+                                          "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                        }
+                                      ],
+                                      "DigestValue": [
+                                        {
+                                          "_": "Rzuzz+70GSnGBF1YxhHnjSzFpQ1MW4vyX/Q9bTHkE2c="
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "Type": "",
+                                      "URI": "",
+                                      "DigestMethod": [
+                                        {
+                                          "_": "",
+                                          "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                        }
+                                      ],
+                                      "DigestValue": [
+                                        {
+                                          "_": "vMs/IdnS7isftqrBDr4F1LK/CkvBkW5Gb3Wn6OVzAxo="
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "Signature": [
+        {
+          "ID": [
+            {
+              "_": "urn:oasis:names:specification:ubl:signature:Invoice"
+            }
+          ],
+          "SignatureMethod": [
+            {
+              "_": "urn:oasis:names:specification:ubl:dsig:enveloped:xades"
+            }
+          ]
+        }
+      ]

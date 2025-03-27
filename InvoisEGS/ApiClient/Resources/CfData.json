@@ -1,0 +1,388 @@
+{
+  "text-custom-field-form": [
+    {
+      "Key": "86b586b6-7e08-4de1-afbb-01f33ac73e9f",
+      "Name": "Integration Info",
+      "Description": "<script>document.addEventListener('DOMContentLoaded',function(){const customFieldsGroup=Array.from(document.querySelectorAll('fieldset')).find(fieldset=>fieldset.querySelector('legend')?.textContent.trim()==='Custom Fields');if(customFieldsGroup){['Integration Info','Application Version'].forEach(label=>{const fieldGroup=Array.from(customFieldsGroup.querySelectorAll('.form-group')).find(group=>group.querySelector('label')?.textContent.trim()===label);fieldGroup?.querySelector('textarea, input')?.setAttribute('readonly','true');});}});</script>",
+      "Position": 1,
+      "Placement": [
+        "38cf4712-6e95-4ce1-b53a-bff03edad273"
+      ],
+      "Type": "ParagraphText",
+      "Size": "Large"
+    },
+    {
+      "Key": "2ebc31b0-41c7-4f6a-b5c3-69b3a5a7c8f9",
+      "Name": "Application Version",
+      "Position": 2,
+      "Placement": [
+        "38cf4712-6e95-4ce1-b53a-bff03edad273"
+      ]
+    },
+    {
+      "Key": "e3b7a2d2-ee33-45e1-af45-8d6e73cdd8d3",
+      "Name": "Integration Type",
+      "Position": 10,
+      "Description": "<script id='grid-fieldset'>const style=document.createElement('style');style.textContent=`fieldset.custom-fields-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;box-sizing:border-box;}@media (max-width:992px){fieldset.custom-fields-grid{grid-template-columns:repeat(2,1fr);}}@media (max-width:768px){fieldset.custom-fields-grid{grid-template-columns:1fr;}}.custom-fields-grid .form-group{margin-bottom:5px;}.custom-fields-grid .v-select,.custom-fields-grid .form-control{width:100%!important;min-width:100%!important;box-sizing:border-box;}`;document.head.appendChild(style);function findFieldsetWithLegend(legendText){const legends=document.querySelectorAll('legend');for(let legend of legends)if(legend.textContent.trim()===legendText)return legend.closest('fieldset');return null}function makeFormResponsive(){const fieldset=findFieldsetWithLegend('Custom Fields');fieldset?(fieldset.classList.add('custom-fields-grid')):console.warn('[grid-fieldset] Custom Fields fieldset not found.')}function waitForElementAndRun(callback,maxAttempts=10){let attempts=0;const checkExist=setInterval(function(){const fieldset=findFieldsetWithLegend('Custom Fields');(fieldset||++attempts>=maxAttempts)&&(clearInterval(checkExist),fieldset&&callback())},500)}function runScript(){makeFormResponsive();const script=document.getElementById('grid-fieldset');script&&script.parentNode.removeChild(script)}'loading'===document.readyState?document.addEventListener('DOMContentLoaded',function(){waitForElementAndRun(runScript)}):waitForElementAndRun(runScript);</script>",
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ]
+    },
+    {
+      "Key": "46094fd1-eb06-46e4-b3f2-4d95042d68b2",
+      "Name": "Format",
+      "Position": 11,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ]
+    },
+    {
+      "Key": "816d6bc5-e5de-40d1-84c5-eb8b29e03ecb",
+      "Name": "Version",
+      "Position": 12,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ]
+    },
+    {
+      "Key": "65bf01ec-9d33-45c5-b441-4b29b1bfdfba",
+      "Name": "Document Issue Date",
+      "Position": 13,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "db3a96f4-91e0-43b6-a105-06995c0f9da4",
+      "Name": "Submission Date",
+      "Position": 14,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "24effc7b-a959-4fef-9c0e-2bf42d78a86a",
+      "Name": "Submission UID",
+      "Position": 15,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "fd3bc68f-f177-45a4-805f-f5e477ad8833",
+      "Name": "Submission Status",
+      "Position": 16,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "a6c2e1fa-f761-4b0d-9bfa-a1282c61e239",
+      "Name": "Document UUID",
+      "Position": 17,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "9d232157-eed1-47b8-a5d8-e77b4c91619b",
+      "Name": "Document LongID",
+      "Position": 18,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Large"
+    },
+    {
+      "Key": "154543e2-662f-471d-9bb4-3a292e01163a",
+      "Name": "Public URL",
+      "Description": "<div id='cfActions'><script>document.addEventListener('DOMContentLoaded',function(){const updateButton=document.querySelector('button.btn.btn-success[onclick=\"ajaxPost(true)\"]'),isUpdate=!!updateButton,customFields=[{label:'Submission UID',actions:['readonly','clear']},{label:'Integration Type',actions:['readonly','clear']},{label:'Format',actions:['readonly','clear']},{label:'Version',actions:['readonly','clear']},{label:'Submission Date',actions:['readonly','clear']},{label:'Document UUID',actions:['readonly','clear']},{label:'Document Issue Date',actions:['readonly','clear']},{label:'Document LongID',actions:['readonly','clear']},{label:'Submission Status',actions:['readonly','clear']},{label:'Public URL',actions:['readonly','clear']}],disableDateAndReference=()=>{const dateInput=document.querySelector('.mx-input');if(dateInput){dateInput.disabled=!0;const calendarIcon=document.querySelector('.mx-icon-calendar');calendarIcon&&(calendarIcon.style.pointerEvents='none',calendarIcon.style.opacity='0.5')}const checkbox=document.querySelector('.input-group-addon input[type=\"checkbox\"]'),inputText=document.querySelector('.input-group input[type=\"text\"]');checkbox&&inputText&&''!==inputText.value&&(app.AutomaticReference=!1,checkbox.checked=!1,checkbox.disabled=!0,inputText.disabled=!0)},processCustomFields=()=>{!isUpdate&&app?.CustomFields2?.Strings&&Object.keys(app.CustomFields2.Strings).forEach(uuid=>{app.CustomFields2.Strings[uuid]=''}),customFields.forEach(field=>{const customField=Array.from(document.querySelectorAll('.form-group')).find(group=>group.querySelector('label')?.textContent.trim()===field.label);if(!customField)return;const input=customField.querySelector('input, textarea');!isUpdate&&field.actions.includes('clear')&&input&&(input.value=''),field.actions.includes('readonly')&&input&&input.setAttribute('readonly','true'),field.actions.includes('hide')&&(customField.style.display='none')})},generateAutoDate=()=>{if(!isUpdate){const now=new Date,currentDateTime=now.toISOString().slice(0,19).replace('T',' ');app.CustomFields2.Strings['65bf01ec-9d33-45c5-b441-4b29b1bfdfba']=currentDateTime,app.IssueDate=currentDateTime.slice(0,10);const documentIssuedDateField=Array.from(document.querySelectorAll('.form-group')).find(group=>group.querySelector('label')?.textContent.trim()==='Document Issue Date');if(documentIssuedDateField){const input=documentIssuedDateField.querySelector('input');input&&(input.value=currentDateTime,input.setAttribute('readonly','true'))}}},disableUpdateButtonValidStatus=()=>{if(isUpdate&&app?.CustomFields2?.Strings){const statusValue=app.CustomFields2.Strings['fd3bc68f-f177-45a4-805f-f5e477ad8833']?.trim().toLowerCase(),lockedStatus=['submitted','valid','cancelled','rejected'];updateButton.disabled=lockedStatus.includes(statusValue)}};try{disableDateAndReference(),processCustomFields(),generateAutoDate(),disableUpdateButtonValidStatus()}catch(error){}document.getElementById('cfActions')?.remove()});</script></div>",
+      "Position": 19,
+      "Placement": [
+        "ad12b60b-23bf-4421-94df-8be79cef533e",
+        "245e5943-0092-409d-96ae-e2ee10eac75b"
+      ],
+      "Size": "Large"
+    },
+    {
+      "Key": "81097077-5b36-42da-834e-f75e2de34e5e",
+      "Name": "TIN",
+      "Position": 11,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ]
+    },
+    {
+      "Key": "567eb451-bb2a-4302-b56c-9f728e8865f3",
+      "Name": "Registration Name",
+      "Position": 12,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "e3067514-a8ac-4257-b89d-86a7d6a1aa5a",
+      "Name": "ID Type",
+      "Position": 13,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Type": "DropdownList",
+      "OptionsForDropdownList": "BRN\nNRIC\nPASSPORT\nARMY"
+    },
+    {
+      "Key": "27cee04c-c1a9-4517-928a-70306dcb9696",
+      "Name": "ID Number",
+      "Position": 14,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ]
+    },
+    {
+      "Key": "a0337fb9-903a-4af1-a267-e62d99c4806f",
+      "Name": "SST",
+      "Position": 15,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ]
+    },
+    {
+      "Key": "8b75a391-8cf1-4017-a1f6-3e20510439f2",
+      "Name": "Country",
+      "Position": 16,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ]
+    },
+    {
+      "Key": "c823cfe6-f3b6-4593-82be-4dfd13816aaf",
+      "Name": "Postal Zone",
+      "Description": "<script id='grid-fieldset'>const style=document.createElement('style');style.textContent=`fieldset.custom-fields-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;box-sizing:border-box;}@media (max-width:992px){fieldset.custom-fields-grid{grid-template-columns:repeat(2,1fr);}}@media (max-width:768px){fieldset.custom-fields-grid{grid-template-columns:1fr;}}.custom-fields-grid .form-group{margin-bottom:5px;}.custom-fields-grid .v-select,.custom-fields-grid .form-control{width:100%!important;min-width:100%!important;box-sizing:border-box;}`;document.head.appendChild(style);function findFieldsetWithLegend(legendText){const legends=document.querySelectorAll('legend');for(let legend of legends)if(legend.textContent.trim()===legendText)return legend.closest('fieldset');return null}function makeFormResponsive(){const fieldset=findFieldsetWithLegend('Custom Fields');fieldset?(fieldset.classList.add('custom-fields-grid')):console.warn('[grid-fieldset] Custom Fields fieldset not found.')}function waitForElementAndRun(callback,maxAttempts=10){let attempts=0;const checkExist=setInterval(function(){const fieldset=findFieldsetWithLegend('Custom Fields');(fieldset||++attempts>=maxAttempts)&&(clearInterval(checkExist),fieldset&&callback())},500)}function runScript(){makeFormResponsive();const script=document.getElementById('grid-fieldset');script&&script.parentNode.removeChild(script)}'loading'===document.readyState?document.addEventListener('DOMContentLoaded',function(){waitForElementAndRun(runScript)}):waitForElementAndRun(runScript);</script>",
+      "Position": 17,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ]
+    },
+    {
+      "Key": "ade9433c-657e-4c55-a788-1b2f65eaac76",
+      "Name": "Subentity Code",
+      "Position": 18,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ]
+    },
+    {
+      "Key": "0d67c088-b738-447e-b5d6-adf7d03cd2dc",
+      "Name": "City Name",
+      "Position": 19,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "40b6d355-ab3e-4be9-982c-859de7921320",
+      "Name": "Address Line 1",
+      "Position": 20,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "4228dd23-525c-48df-82a3-ce3c552dafb7",
+      "Name": "Address Line 2",
+      "Position": 21,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "8665bcb1-06d4-4832-98bd-35576cc03443",
+      "Name": "Address Line 3",
+      "Position": 22,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "2a8ce8ff-9e55-4f80-a955-2df717857f6a",
+      "Name": "eMail",
+      "Position": 23,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "bf710954-03b5-4ddd-8402-5d0f4a2a8887",
+      "Name": "Telephone",
+      "Position": 24,
+      "Placement": [
+        "ec37c11e-2b67-49c6-8a58-6eccb7dd75ee"
+      ],
+      "Size": "Medium"
+    },
+    {
+      "Key": "0d2b4ff6-0a27-4763-8acd-7d10dde92e54",
+      "Name": "Commodity Class",
+      "Position": 10,
+      "Placement": [
+        "0dbdbf8a-d80c-48e6-b453-bb7862445b7c",
+        "efc4f2cc-acf0-4815-a9a8-13bae00c6167",
+        "7affe9ee-731f-4936-8acf-15cae7bcacee"
+      ],
+      "Description": "https://sdk.myinvois.hasil.gov.my/codes/classification-codes/"
+    },
+    {
+      "Key": "ac967dda-11e8-4d35-8cb9-554e0c39f0f0",
+      "Name": "UoM Code",
+      "Position": 11,
+      "Placement": [
+        "0dbdbf8a-d80c-48e6-b453-bb7862445b7c",
+        "efc4f2cc-acf0-4815-a9a8-13bae00c6167",
+        "7affe9ee-731f-4936-8acf-15cae7bcacee"
+      ],
+      "Description": "https://sdk.myinvois.hasil.gov.my/codes/unit-types/"
+    },
+    {
+      "Key": "0b3bf93a-b3e7-4085-8fdf-0b30ca9c9051",
+      "Name": "Reason (TaxType E)",
+      "Position": 12,
+      "Placement": [
+        "0dbdbf8a-d80c-48e6-b453-bb7862445b7c",
+        "efc4f2cc-acf0-4815-a9a8-13bae00c6167",
+        "7affe9ee-731f-4936-8acf-15cae7bcacee"
+      ],
+      "Size": "Large"
+    },
+    {
+      "Key": "8941dae8-05a1-49c9-aea0-4fdd4e4af87a",
+      "Name": "TaxType",
+      "Position": 1,
+      "Placement": [
+        "7f368d97-8b7f-4b39-b156-dc66afd9496a"
+      ],
+      "Type": "DropdownList",
+      "OptionsForDropdownList": "01\n02\n03\n04\n05\n06\nE",
+      "Description": "https://sdk.myinvois.hasil.gov.my/codes/tax-types/"
+    }
+  ],
+  "tax-code-form": [
+    {
+      "Key": "e2f536cd-79e6-48a1-a189-3144f882207c",
+      "Name": "Tax exemption",
+      "Label": "Tax exemption",
+      "Components": [
+        {}
+      ],
+      "CustomFields2": {
+        "Strings": {
+          "8941dae8-05a1-49c9-aea0-4fdd4e4af87a": "E"
+        }
+      }
+    },
+    {
+      "Key": "70ed7305-8f26-40ac-b524-e049fba2a091",
+      "Name": "@10% SalesTax",
+      "Label": "@10% SalesTax",
+      "TaxRate": "CustomRate",
+      "Rate": 10,
+      "Components": [
+        {}
+      ],
+      "CustomFields2": {
+        "Strings": {
+          "8941dae8-05a1-49c9-aea0-4fdd4e4af87a": "01"
+        }
+      }
+    }
+  ],
+  "inventory-item-form": [
+    {
+      "Key": "2ff84f8a-21e6-4430-9a57-e664e16a759f",
+      "ItemName": "Item with Exempted Tax",
+      "UnitName": "XUN",
+      "HasDefaultTaxCode": true,
+      "DefaultTaxCode": "e2f536cd-79e6-48a1-a189-3144f882207c",
+      "CustomFields2": {
+        "Strings": {
+          "0d2b4ff6-0a27-4763-8acd-7d10dde92e54": "003",
+          "ac967dda-11e8-4d35-8cb9-554e0c39f0f0": "XUN",
+          "0b3bf93a-b3e7-4085-8fdf-0b30ca9c9051": "Some reason for Exempted Tax"
+        }
+      }
+    },
+    {
+      "Key": "7bcf657d-56db-4aa1-9fb1-3762158acd35",
+      "ItemName": "Item with Sales Tax",
+      "UnitName": "XUN",
+      "HasDefaultTaxCode": true,
+      "DefaultTaxCode": "70ed7305-8f26-40ac-b524-e049fba2a091",
+      "CustomFields2": {
+        "Strings": {
+          "0d2b4ff6-0a27-4763-8acd-7d10dde92e54": "003",
+          "ac967dda-11e8-4d35-8cb9-554e0c39f0f0": "XUN"
+        }
+      }
+    }
+  ],
+  "customer-form": [
+    {
+      "Key": "b68cd55b-3144-4c7b-b04d-d869d834adb7",
+      "Name": "Registration Name",
+      "BillingAddress": "Customer Adress",
+      "CustomFields2": {
+        "Strings": {
+          "567eb451-bb2a-4302-b56c-9f728e8865f3": "Registration Name",
+          "2a8ce8ff-9e55-4f80-a955-2df717857f6a": "cust@nothing.com",
+          "8b75a391-8cf1-4017-a1f6-3e20510439f2": "MYS",
+          "ade9433c-657e-4c55-a788-1b2f65eaac76": "14",
+          "0d67c088-b738-447e-b5d6-adf7d03cd2dc": "Kuala Lumpur",
+          "40b6d355-ab3e-4be9-982c-859de7921320": "Lot 66",
+          "4228dd23-525c-48df-82a3-ce3c552dafb7": "Bangunan Merdeka",
+          "8665bcb1-06d4-4832-98bd-35576cc03443": "Persiaran Jaya",
+          "c823cfe6-f3b6-4593-82be-4dfd13816aaf": "50480",
+          "e3067514-a8ac-4257-b89d-86a7d6a1aa5a": "BRN",
+          "81097077-5b36-42da-834e-f75e2de34e5e": "",
+          "27cee04c-c1a9-4517-928a-70306dcb9696": "",
+          "a0337fb9-903a-4af1-a267-e62d99c4806f": "NA",
+          "bf710954-03b5-4ddd-8402-5d0f4a2a8887": "0123444457"
+        }
+      }
+    }
+  ],
+  "sales-invoice-footer-form": [
+    {
+      "Key": "0c92f52a-84dd-4990-b3df-fd9b4d196c80",
+      "Name": "QRCode",
+      "Content": "<script src='resources/qrcode/qrcode.js'></script><script id='qrCodeScript'>document.onreadystatechange=function(){if(document.readyState=='complete'){const qrCodeContent='%%Public URL%%';function findNearestTable(element){while(element){if(element.tagName==='TABLE')return element;element=element.parentElement}return null}function insertQRCode(qrCodeContent){const qrCodeContainer=document.getElementById('qrCodeContainer'),qrCodeScript=document.getElementById('qrCodeScript');if(qrCodeContainer){qrCodeContainer.innerHTML='<div id=\"generatedQrCode\" style=\"padding: 20px\"></div>';renderQRCode(qrCodeContent,'generatedQrCode')}else if(qrCodeContent&&qrCodeContent.length>10){const nearestTable=findNearestTable(qrCodeScript);if(!nearestTable){console.error('Parent table not found for the QR code.');return}const newRow=nearestTable.insertRow(),newCell=newRow.insertCell();newCell.colSpan=99,newCell.innerHTML='<div id=\"generatedQrCode\" style=\"padding: 20px\"></div>',renderQRCode(qrCodeContent,'generatedQrCode')}qrCodeScript&&qrCodeScript.remove()}function renderQRCode(content,elementId){new QRCode(document.getElementById(elementId),{text:content,width:160,height:160,colorDark:'#000000',colorLight:'#fafafa',correctLevel:QRCode.CorrectLevel.L})}insertQRCode(qrCodeContent)}}</script>",
+      "Inactive": false
+    }
+  ],
+  "credit-note-footer-form": [
+    {
+      "Key": "f3083e3c-c6aa-4c65-bb48-0c9004965fc8",
+      "Name": "QrCode",
+      "Content": "<script src='resources/qrcode/qrcode.js'></script><script id='qrCodeScript'>document.onreadystatechange=function(){if(document.readyState=='complete'){const qrCodeContent='%%Public URL%%';function findNearestTable(element){while(element){if(element.tagName==='TABLE')return element;element=element.parentElement}return null}function insertQRCode(qrCodeContent){const qrCodeContainer=document.getElementById('qrCodeContainer'),qrCodeScript=document.getElementById('qrCodeScript');if(qrCodeContainer){qrCodeContainer.innerHTML='<div id=\"generatedQrCode\" style=\"padding: 20px\"></div>';renderQRCode(qrCodeContent,'generatedQrCode')}else if(qrCodeContent&&qrCodeContent.length>10){const nearestTable=findNearestTable(qrCodeScript);if(!nearestTable){console.error('Parent table not found for the QR code.');return}const newRow=nearestTable.insertRow(),newCell=newRow.insertCell();newCell.colSpan=99,newCell.innerHTML='<div id=\"generatedQrCode\" style=\"padding: 20px\"></div>',renderQRCode(qrCodeContent,'generatedQrCode')}qrCodeScript&&qrCodeScript.remove()}function renderQRCode(content,elementId){new QRCode(document.getElementById(elementId),{text:content,width:160,height:160,colorDark:'#000000',colorLight:'#fafafa',correctLevel:QRCode.CorrectLevel.L})}insertQRCode(qrCodeContent)}}</script>",
+      "Inactive": false
+    }
+  ]
+}

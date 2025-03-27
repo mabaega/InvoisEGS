@@ -1,0 +1,54 @@
+{
+    "Target": "signature",
+    "SignedProperties": [
+        {
+            "Id": "id-xades-signed-props",
+            "SignedSignatureProperties": [
+                {
+                    "SigningTime": [
+                        {
+                            "_": "${UTC_TIMESTAMP}"
+                        }
+                    ],
+                    "SigningCertificate": [
+                        {
+                            "Cert": [
+                                {
+                                    "CertDigest": [
+                                        {
+                                            "DigestMethod": [
+                                                {
+                                                    "_": "",
+                                                    "Algorithm": "http://www.w3.org/2001/04/xmlenc#sha256"
+                                                }
+                                            ],
+                                            "DigestValue": [
+                                                {
+                                                    "_": "${CERT_DIGEST}"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "IssuerSerial": [
+                                        {
+                                            "X509IssuerName": [
+                                                {
+                                                    "_": "${ISSUER_NAME}"
+                                                }
+                                            ],
+                                            "X509SerialNumber": [
+                                                {
+                                                    "_": "${CERT_SERIAL_NUMBER}"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
