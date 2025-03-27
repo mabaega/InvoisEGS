@@ -361,3 +361,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/InvoisEGS/CertificateTests.cs
+/InvoisEGS/Class.cs
+/InvoisEGS/Index.cshtml
+/InvoisEGS/InvoiceSample.json
+/InvoisEGS/signedinvoicesample.jsom
+/InvoisEGS/ubljson.txt
+/InvoisEGS/Utilities/CertificateHelper.cs
+/InvoisEGS/Utilities/InvoiceTransformer.cs
+/InvoisEGS/.vscode/tasks.json
+/InvoisEGS/.vscode/launch.json
