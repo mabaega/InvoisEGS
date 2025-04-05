@@ -8,7 +8,7 @@ namespace InvoisEGS.ApiClient.ApiHelpers
     {
         public static (string certificateContent, string privateKeyContent) GetCertificateContents(string pfxPath, string password)
         {
-            X509Certificate2 certificate = new(pfxPath, password, X509KeyStorageFlags.Exportable);
+            X509Certificate2 certificate = new(pfxPath, password, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
             return ExtractCertificateContents(certificate);
         }
         public static async Task<(string certificateContent, string privateKeyContent)> GetCertificateContents(IFormFile pfxFile, string password)
@@ -19,8 +19,8 @@ namespace InvoisEGS.ApiClient.ApiHelpers
         }
         public static (string certificateContent, string privateKeyContent) GetCertificateContents(byte[] pfxBytes, string password)
         {
-            X509Certificate2 certificate = new(pfxBytes, password, X509KeyStorageFlags.Exportable);
-            return ExtractCertificateContents(certificate);
+            X509Certificate2 certificate = new(pfxBytes, password, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
+            return ExtractCertificateNative(certificate);
         }
 
         private static (string certificateContent, string privateKeyContent) ExtractCertificateContents(X509Certificate2 certificate)
@@ -45,6 +45,134 @@ namespace InvoisEGS.ApiClient.ApiHelpers
             pemWriter.WriteObject(key.Key);
             string privateKeyContent = stringWriter.ToString();
             return (certificateContent, privateKeyContent);
+        }
+
+        public static (string certificateContent, string privateKeyContent) ExtractCertificateNative(X509Certificate2 certificate)
+        {
+
+            try
+            {
+               
+                Console.WriteLine($"Certificate loaded successfully: {certificate.Subject}");
+
+                // Get certificate in PEM format
+                string certificatePem = FormatPem(
+                    Convert.ToBase64String(certificate.Export(X509ContentType.Cert)),
+                    "CERTIFICATE"
+                );
+
+                // Try to get private key
+                string privateKeyPem = "";
+                using (var privateKey = certificate.GetRSAPrivateKey())
+                {
+                    if (privateKey != null)
+                    {
+                        Console.WriteLine("RSA private key obtained from certificate");
+                        
+                        try
+                        {
+                            // Try to export directly as PKCS#1 first (preferred for document signing)
+                            Console.WriteLine("Attempting direct PKCS#1 export...");
+                            byte[] pkcs1Bytes = privateKey.ExportRSAPrivateKey();
+                            privateKeyPem = FormatPem(
+                                Convert.ToBase64String(pkcs1Bytes),
+                                "RSA PRIVATE KEY"  // PKCS#1 format
+                            );
+                            Console.WriteLine("PKCS#1 export successful");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Direct PKCS#1 export failed: {ex.Message}");
+                            
+                            try
+                            {
+                                // Fall back to PKCS#8 if PKCS#1 fails
+                                Console.WriteLine("Attempting PKCS#8 export...");
+                                byte[] privateKeyBytes = privateKey.ExportPkcs8PrivateKey();
+                                privateKeyPem = FormatPem(
+                                    Convert.ToBase64String(privateKeyBytes),
+                                    "PRIVATE KEY"  // PKCS#8 format
+                                );
+                                Console.WriteLine("PKCS#8 export successful");
+                            }
+                            catch (Exception pkcs8Ex)
+                            {
+                                Console.WriteLine($"PKCS#8 export failed: {pkcs8Ex.Message}");
+                                
+                                // Try with a temporary file approach
+                                try
+                                {
+                                    Console.WriteLine("Attempting export via temporary PFX...");
+                                    string tempPfxPath = Path.GetTempFileName();
+                                    try
+                                    {
+                                        // Export to PFX with no password
+                                        byte[] pfxData = certificate.Export(X509ContentType.Pfx, "");
+                                        File.WriteAllBytes(tempPfxPath, pfxData);
+                                        
+                                        // Import with different flags
+                                        using var tempCert = new X509Certificate2(
+                                            tempPfxPath, 
+                                            "", 
+                                            X509KeyStorageFlags.Exportable | X509KeyStorageFlags.UserKeySet
+                                        );
+                                        
+                                        using var tempPrivateKey = tempCert.GetRSAPrivateKey();
+                                        if (tempPrivateKey != null)
+                                        {
+                                            byte[] keyBytes = tempPrivateKey.ExportRSAPrivateKey();
+                                            privateKeyPem = FormatPem(
+                                                Convert.ToBase64String(keyBytes),
+                                                "RSA PRIVATE KEY"
+                                            );
+                                            Console.WriteLine("Export via temporary PFX successful");
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        if (File.Exists(tempPfxPath))
+                                            File.Delete(tempPfxPath);
+                                    }
+                                }
+                                catch (Exception tempEx)
+                                {
+                                    Console.WriteLine($"Temporary PFX approach failed: {tempEx.Message}");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to get RSA private key from certificate");
+                    }
+                }
+
+                //Console.WriteLine("\nCertificate:");
+                //Console.WriteLine(certificatePem);
+                //Console.WriteLine("\nPrivate Key:");
+                //Console.WriteLine(string.IsNullOrEmpty(privateKeyPem) ? "*** EMPTY ***" : privateKeyPem);
+
+                return (certificatePem, privateKeyPem);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return (string.Empty,string.Empty);
+            }
+        }
+
+        
+        private static string FormatPem(string base64Content, string label)
+        {
+            // Split the base64 string into 64-character lines
+            var lines = new List<string>();
+            for (int i = 0; i < base64Content.Length; i += 64)
+            {
+                lines.Add(base64Content.Substring(i, Math.Min(64, base64Content.Length - i)));
+            }
+            
+            return $"-----BEGIN {label}-----\n{string.Join("\n", lines)}\n-----END {label}-----";
         }
 
         public static string GetSerialNumber(X509Certificate2 certificate)

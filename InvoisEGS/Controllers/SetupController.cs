@@ -18,14 +18,15 @@ namespace InvoisEGS.Controllers
             _logger = logger;
         }
 
-        [HttpGet("register")]
+        [HttpGet("Register")]
         public IActionResult Register()
         {
             string? setupViewModelJson = TempData["SetupViewModel"] as string;
+
             if (!string.IsNullOrEmpty(setupViewModelJson))
             {
                 SetupViewModel? setupViewModel = JsonConvert.DeserializeObject<SetupViewModel>(setupViewModelJson);
-                return View("index", setupViewModel);
+                return View("Register", setupViewModel);
             }
             return View();
         }
@@ -98,6 +99,7 @@ namespace InvoisEGS.Controllers
                 businessDetails = RelayDataHelper.UpdateOrCreateField(businessDetails, "Name", viewModel.RegistrationName ?? "");
                 //businessDetails = RelayDataHelper.UpdateOrCreateField(businessDetails, "Address", viewModel.GetFormattedAddress());
                 ApplicationConfig applicationConfig = viewModel.GetApplicationConfig();
+                
                 string? serializedConfig = applicationConfig != null ? ObjectCompressor.SerializeToBase64String(applicationConfig) : string.Empty;
                 businessDetails = RelayDataHelper.ModifyStringCustomFields2(businessDetails, ManagerCustomField.AppConfigGuid, serializedConfig ?? string.Empty);
                 businessDetails = RelayDataHelper.ModifyStringCustomFields2(businessDetails, ManagerCustomField.AppVersionGuid, VersionHelper.GetVersion());
@@ -126,7 +128,7 @@ namespace InvoisEGS.Controllers
         {
             try
             {
-                string jsonData = InvoisEGS.ApiClient.ApiHelpers.XmlJsonUtilities.LoadEmbededResources("InvoisEGS.ApiClient.Resources.CfData.json");
+                string jsonData = XmlJsonUtilities.LoadEmbededResources("InvoisEGS.ApiClient.Resources.CfData.json");
                 return Content(jsonData, "application/json");
             }
             catch (Exception ex)
@@ -190,7 +192,7 @@ namespace InvoisEGS.Controllers
 
                 try
                 {
-                    if (certificateType.ToLower() == "pfx")
+                    if (certificateType.ToLower().Equals("pfx") || certificateType.ToLower().Equals("p12"))
                     {
                         using var cert = new X509Certificate2(certBytes, password, X509KeyStorageFlags.Exportable);
                         var certInfo = CertificateHandler.ValidateCertificate(cert, taxpayerTIN);
@@ -200,7 +202,7 @@ namespace InvoisEGS.Controllers
                             return Json(new { success = false, message = "Certificate validation failed" });
                         }
 
-                        var (certificateBase64, privateKeyBase64) = CertificateHandler.GetCertificateContents(certBytes, password);
+                        var (certificateBase64, privateKeyBase64) = CertificateHandler.GetCertificateContents(certBytes, password ?? "");
                         
                         // Clean up private key
                         string cleanedPrivateKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(privateKeyBase64));

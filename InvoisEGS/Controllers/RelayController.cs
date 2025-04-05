@@ -85,32 +85,61 @@ namespace InvoisEGS.Controllers
                 string certificateContent = string.Empty;
                 string privateKeyContent = string.Empty;
 
-                if (!string.IsNullOrEmpty(AppConfig.Certificate))
+                // Skip certificate validation for document version 1.0
+                bool isCertificateRequired = relayData.DocumentVersion == "1.1";
+
+                if (isCertificateRequired)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(AppConfig.Certificate))
                     {
-                        certificateContent = AppConfig.Certificate;
-                        privateKeyContent = AppConfig.PrivateKey ?? throw new Exception("Private key is missing from configuration");
+                        try
+                        {
+                            certificateContent = AppConfig.Certificate;
+                            privateKeyContent = AppConfig.PrivateKey ?? throw new Exception("Private key is missing from configuration");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to load certificate from ApplicationConfig");
+
+                            // Return a user-friendly error page instead of throwing exception
+                            return View("Error", new ErrorViewModel
+                            {
+                                Referrer = formData.GetValueOrDefault("Referrer", ""),
+                                ErrorMessage = "Certificate validation failed. Please check your certificate configuration and try again.",
+                                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                            });
+                        }
                     }
-                    catch (Exception ex)
+
+                    if (string.IsNullOrEmpty(certificateContent) || string.IsNullOrEmpty(privateKeyContent))
                     {
-                        _logger.LogError(ex, "Failed to load certificate from ApplicationConfig");
-                        throw;
+                        // Return a user-friendly error page for missing certificate data
+                        return View("Error", new ErrorViewModel
+                        {
+                            Referrer = formData.GetValueOrDefault("Referrer", ""),
+                            ErrorMessage = "Certificate or private key is missing from configuration. Please verify your certificate in the setup page.",
+                            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                        });
                     }
                 }
-
-                if (string.IsNullOrEmpty(certificateContent) || string.IsNullOrEmpty(privateKeyContent))
+                else
                 {
-                    throw new Exception("Certificate or private key is missing from configuration");
+                    // For version 1.0, use empty strings for certificate and private key
+                    _logger.LogInformation("Document version 1.0 detected - skipping certificate validation");
+                    certificateContent = string.Empty;
+                    privateKeyContent = string.Empty;
                 }
 
                 EInvoiceGenerator eInvoice = new(certificateContent, privateKeyContent);
                 SubmitDocumentRequest submitDocumentRequest;
 
-                if(AppConfig.DocumentFormat == "JSON"){
-                    submitDocumentRequest = eInvoice.GenerateEInvoiceJSON(invObject, (AppConfig.DocumentFormat == "1.1"));
-                }else{
-                    submitDocumentRequest = eInvoice.GenerateEInvoiceXML(invObject, (AppConfig.DocumentFormat == "1.1"));
+                if (relayData.DocumentFormat == "JSON")
+                {
+                    submitDocumentRequest = eInvoice.GenerateEInvoiceJSON(invObject, isCertificateRequired);
+                }
+                else
+                {
+                    submitDocumentRequest = eInvoice.GenerateEInvoiceXML(invObject, isCertificateRequired);
                 }
 
                 relayData.SubmitRequestJson = JsonConvert.SerializeObject(submitDocumentRequest);
@@ -298,7 +327,13 @@ namespace InvoisEGS.Controllers
                     return DeserializationErrorResponse(HttpStatusCode.OK, apiResponse.serverResponse);
                 }
 
+                if (typedResponse.OverallStatus == "InProgress")
+                { 
+                    return HandleInProgressResponse(response, responseContent);
+                }
+
                 UpdateInvoiceSummary(model, invoiceSummary, typedResponse);
+
                 return CreateCombinedApiObject(apiResponse, invoiceSummary, model);
             }
             catch (HttpRequestException ex)
@@ -391,13 +426,15 @@ namespace InvoisEGS.Controllers
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.DocumentVersionGuid, updateSummary.DocumentVersion);
 
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.SubmissionIdGuid, updateSummary.SubmissionUid);
-            invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.SubmissionDateGuid, updateSummary.SubmissionDate.ToString("yyyy-MM-dd HH:mm:ssZ"));
+
+            var submissionDate = updateSummary.SubmissionDate == default ? DateTime.UtcNow : updateSummary.SubmissionDate;
+            invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.SubmissionDateGuid, submissionDate.ToString("yyyy-MM-dd HH:mm:ssZ"));
 
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.DocumentUUIDGuid, updateSummary.DocumentUUID);
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.DocumentIssuedDateGuid, updateSummary.DocumentIssueDate);
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.DoucmentStatusGuid, updateSummary.DocumentStatus);
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.DocumentLongIdGuid, updateSummary.DocumentLongId);
-          
+
             invoiceJson = RelayDataHelper.ModifyStringCustomFields2(invoiceJson, ManagerCustomField.PublicUrlGuid, updateSummary.PublicUrl);
 
             return invoiceJson;
@@ -422,27 +459,31 @@ namespace InvoisEGS.Controllers
 
         private void UpdateInvoiceSummary(RelayDataViewModel model, InvoiceSummary invoiceSummary, DocumentStatusResponse documentStatusResponse)
         {
-            invoiceSummary.DocumentIssueDate = model.IssueDate;
-            invoiceSummary.IntegrationType = model.IntegrationType;
-            invoiceSummary.DocumentFormat = model.DocumentFormat;
-            invoiceSummary.DocumentVersion = model.DocumentVersion;
-
-            invoiceSummary.SubmissionDate = documentStatusResponse.DateTimeReceived;
-            invoiceSummary.DocumentUUID = documentStatusResponse.DocumentSummary[0].UUID;
-            invoiceSummary.DocumentLongId = documentStatusResponse.DocumentSummary[0].LongId;
-            invoiceSummary.DocumentStatus = documentStatusResponse.DocumentSummary[0].Status;
-
-            if (!string.IsNullOrEmpty(invoiceSummary.DocumentLongId))
+            if (documentStatusResponse.DocumentSummary.Any())
             {
-                string baseUrl = model.IntegrationType.GetQrBaseUrl();
-                invoiceSummary.PublicUrl = !string.IsNullOrEmpty(baseUrl)
-                    ? $"{baseUrl.TrimEnd('/')}/{invoiceSummary.DocumentUUID}/share/{invoiceSummary.DocumentLongId}"
-                    : string.Empty;
+                invoiceSummary.DocumentIssueDate = model.IssueDate;
+                invoiceSummary.IntegrationType = model.IntegrationType;
+                invoiceSummary.DocumentFormat = model.DocumentFormat;
+                invoiceSummary.DocumentVersion = model.DocumentVersion;
+
+                var submissionDate = documentStatusResponse.DateTimeReceived == default ? DateTime.UtcNow : documentStatusResponse.DateTimeReceived;
+                invoiceSummary.SubmissionDate = submissionDate;
+
+                invoiceSummary.DocumentUUID = documentStatusResponse.DocumentSummary[0].UUID;
+                invoiceSummary.DocumentLongId = documentStatusResponse.DocumentSummary[0].LongId;
+                invoiceSummary.DocumentStatus = documentStatusResponse.DocumentSummary[0].Status;
+
+                if (!string.IsNullOrEmpty(invoiceSummary.DocumentLongId))
+                {
+                    string baseUrl = model.IntegrationType.GetQrBaseUrl();
+                    invoiceSummary.PublicUrl = !string.IsNullOrEmpty(baseUrl)
+                        ? $"{baseUrl.TrimEnd('/')}/{invoiceSummary.DocumentUUID}/share/{invoiceSummary.DocumentLongId}"
+                        : string.Empty;
+                }
+
+                model.InvoiceJson = UpdateInvoiceWithResponse(model, invoiceSummary);
             }
-
-            model.InvoiceJson = UpdateInvoiceWithResponse(model, invoiceSummary);
         }
-
         private ApiResponse CreateCombinedApiObject(ApiResponse submitResponse, InvoiceSummary updatedSummary, RelayDataViewModel model)
         {
             return new ApiResponse
@@ -516,7 +557,7 @@ namespace InvoisEGS.Controllers
                 ?? response.SelectToken("$.error")?.ToString()
                 ?? "API request failed";
         }
-        
+
         private ApiResponse HandleErrorResponse(HttpResponseMessage response, string responseContent)
         {
             _logger.LogDebug("Raw error response: {Content}", responseContent);
@@ -541,6 +582,36 @@ namespace InvoisEGS.Controllers
                 {
                     statusCode = response.StatusCode,
                     code = "ApiError",
+                    message = "Failed to parse error response",
+                    serverResponse = jsonString
+                };
+            }
+        }
+
+        private ApiResponse HandleInProgressResponse(HttpResponseMessage response, string responseContent)
+        {
+            _logger.LogDebug("Document Status InProgress: {Content}", responseContent);
+
+            try
+            {
+                var jObject = JObject.Parse(responseContent);
+
+                return new ApiResponse
+                {
+                    statusCode = response.StatusCode,
+                    code = "InProgress",
+                    message = $"Document status is currently in progress. \nPlease try again later.",
+                    serverResponse = jObject.ToString()
+                };
+            }
+            catch (JsonReaderException ex)
+            {
+                _logger.LogError(ex, "Failed to parse error response");
+                string jsonString = $"{{\"error\": \"Failed to parse error response\", \"message\": \"{ex.Message}\"}}";
+                return new ApiResponse
+                {
+                    statusCode = response.StatusCode,
+                    code = "InProgress",
                     message = "Failed to parse error response",
                     serverResponse = jsonString
                 };
@@ -602,22 +673,22 @@ namespace InvoisEGS.Controllers
 
 
 
-public class ApiResponse
-{
-    public HttpStatusCode statusCode { get; set; }
-    public string code { get; set; }
-    public string message { get; set; }
-    public ApiInvoice? apiInvoice { get; set; }
-    public string? publicUrl { get; set; }
-    public InvoiceSummary? invoiceSummary { get; set; }
-    public string? serverResponse { get; set; }
-
-    public class ApiInvoice
+    public class ApiResponse
     {
-        public string apiUrl { get; set; }
-        public string secretKey { get; set; }
-        public string payload { get; set; }
+        public HttpStatusCode statusCode { get; set; }
+        public string code { get; set; }
+        public string message { get; set; }
+        public ApiInvoice? apiInvoice { get; set; }
+        public string? publicUrl { get; set; }
+        public InvoiceSummary? invoiceSummary { get; set; }
+        public string? serverResponse { get; set; }
+
+        public class ApiInvoice
+        {
+            public string apiUrl { get; set; }
+            public string secretKey { get; set; }
+            public string payload { get; set; }
+        }
     }
-}
 
 }

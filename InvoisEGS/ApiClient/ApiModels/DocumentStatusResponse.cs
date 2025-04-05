@@ -1,91 +1,91 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace InvoisEGS.ApiClient.ApiModels
 {
     public class DocumentStatusResponse
     {
-        [JsonPropertyName("submissionUid")]
+        [JsonProperty("submissionUid")]
         public string SubmissionUid { get; set; }
 
-        [JsonPropertyName("documentCount")]
+        [JsonProperty("documentCount")]
         public int DocumentCount { get; set; }
 
-        [JsonPropertyName("dateTimeReceived")]
+        [JsonProperty("dateTimeReceived")]
         public DateTime DateTimeReceived { get; set; }
 
-        [JsonPropertyName("overallStatus")]
+        [JsonProperty("overallStatus")]
         public string OverallStatus { get; set; }
 
-        [JsonPropertyName("documentSummary")]
+        [JsonProperty("documentSummary")]
         public DocumentSummary[] DocumentSummary { get; set; }
     }
 
     public class DocumentSummary
     {
-        [JsonPropertyName("uuid")]
+        [JsonProperty("uuid")]
         public string UUID { get; set; }
 
-        [JsonPropertyName("submissionUid")]
+        [JsonProperty("submissionUid")]
         public string SubmissionUid { get; set; }
 
-        [JsonPropertyName("longId")]
+        [JsonProperty("longId")]
         public string LongId { get; set; }
 
-        [JsonPropertyName("internalId")]
+        [JsonProperty("internalId")]
         public string InternalId { get; set; }
 
-        [JsonPropertyName("typeName")]
+        [JsonProperty("typeName")]
         public string TypeName { get; set; }
 
-        [JsonPropertyName("typeVersionName")]
+        [JsonProperty("typeVersionName")]
         public string TypeVersionName { get; set; }
 
-        [JsonPropertyName("SupplierTin")]
+        [JsonProperty("SupplierTin")]
         public string SupplierTin { get; set; }
 
-        [JsonPropertyName("SupplierName")]
+        [JsonProperty("SupplierName")]
         public string SupplierName { get; set; }
 
-        [JsonPropertyName("receiverId")]
+        [JsonProperty("receiverId")]
         public string ReceiverId { get; set; }
 
-        [JsonPropertyName("receiverName")]
+        [JsonProperty("receiverName")]
         public string ReceiverName { get; set; }
 
-        [JsonPropertyName("dateTimeIssued")]
+        [JsonProperty("dateTimeIssued")]
         public DateTime DateTimeIssued { get; set; }
 
-        [JsonPropertyName("dateTimeReceived")]
+        [JsonProperty("dateTimeReceived")]
         public DateTime DateTimeReceived { get; set; }
 
-        [JsonPropertyName("dateTimeValidated")]
-        public DateTime DateTimeValidated { get; set; }
+        //[JsonProperty("dateTimeValidated")]
+        //public DateTime DateTimeValidated { get; set; }
 
-        [JsonPropertyName("totalExcludingTax")]
+        [JsonProperty("totalExcludingTax")]
         public decimal TotalExcludingTax { get; set; }
 
-        [JsonPropertyName("totalDiscount")]
+        [JsonProperty("totalDiscount")]
         public decimal TotalDiscount { get; set; }
 
-        [JsonPropertyName("totalNetAmount")]
+        [JsonProperty("totalNetAmount")]
         public decimal TotalNetAmount { get; set; }
 
-        [JsonPropertyName("totalPayableAmount")]
+        [JsonProperty("totalPayableAmount")]
         public decimal TotalPayableAmount { get; set; }
 
-        [JsonPropertyName("status")]
+        [JsonProperty("status")]
         public string Status { get; set; }
 
-        [JsonPropertyName("cancelDateTime")]
+        [JsonProperty("cancelDateTime")]
         public DateTime? CancelDateTime { get; set; }
 
-        [JsonPropertyName("rejectRequestDateTime")]
+        [JsonProperty("rejectRequestDateTime")]
         public DateTime? RejectRequestDateTime { get; set; }
 
-        [JsonPropertyName("documentStatusReason")]
+        [JsonProperty("documentStatusReason")]
         public string DocumentStatusReason { get; set; }
 
-        [JsonPropertyName("createdByUserId")]
+        [JsonProperty("createdByUserId")]
         public string CreatedByUserId { get; set; }
     }
 }

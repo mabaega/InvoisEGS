@@ -27,16 +27,16 @@ namespace InvoisEGS.Utilities
             var invoice = new MyInvoice
             {
                 ID = new List<ID> { new ID { Value = relayData.ManagerInvoice.Reference } },
-                IssueDate = new List<TextValue> { new TextValue { Value = utcDateTime.ToString("yyyy-MM-dd") } },
-                IssueTime = new List<TextValue> { new TextValue { Value = utcDateTime.ToString("HH:mm:ssZ") } },
-                DocumentCurrencyCode = new List<TextValue> { new TextValue { Value = relayData.DocumentCurrencyCode } },
-                TaxCurrencyCode = new List<TextValue> { new TextValue { Value = relayData.TaxCurrencyCode } },
+                IssueDate = new List<TextValue> { new TextValue(utcDateTime.ToString("yyyy-MM-dd") ) },
+                IssueTime = new List<TextValue> { new TextValue (utcDateTime.ToString("HH:mm:ssZ") ) },
+                DocumentCurrencyCode = new List<TextValue> { new TextValue (relayData.DocumentCurrencyCode) },
+                TaxCurrencyCode = new List<TextValue> { new TextValue (relayData.TaxCurrencyCode ) },
                 InvoiceTypeCode = new List<InvoiceTypeCode> 
                 { 
                     new InvoiceTypeCode 
                     { 
                         Value = ((int)relayData.InvoiceTypeCode).ToString("00"),
-                        ListVersionID = relayData.ListVersionID 
+                        ListVersionID = relayData.DocumentVersion
                     } 
                 },
                 AccountingSupplierParty = new List<AccountingSupplierParty> { relayData.AppConfig.Supplier },
@@ -53,11 +53,11 @@ namespace InvoisEGS.Utilities
             if (_taxCurrencyCode != _invoiceCurrencyCode)
             {
                 invoice.TaxExchangeRate = new TaxExchangeRate
-                {
-                    SourceCurrencyCode = _invoiceCurrencyCode,
-                    TargetCurrencyCode = _taxCurrencyCode,
-                    CalculationRate = _managerInvoice.ExchangeRate
-                };
+                (
+                    _invoiceCurrencyCode,
+                    _taxCurrencyCode,
+                    _managerInvoice.ExchangeRate
+                );
             }
 
             invoice.InvoiceLine = CreateInvoiceLines();
@@ -81,8 +81,8 @@ namespace InvoisEGS.Utilities
             {
                 var discountCharge = new AllowanceCharge();
                 discountCharge.ChargeIndicator = new List<BoolValue> { new BoolValue { Value = false } };
-                discountCharge.AllowanceChargeReason = new List<TextValue> { new TextValue { Value = "Total Discounts" } };
-                discountCharge.Amount = new List<Amount> { new Amount { Value = totalDiscounts, CurrencyID = _invoiceCurrencyCode } };
+                discountCharge.AllowanceChargeReason = new List<TextValue> { new TextValue("Total Discounts") };
+                discountCharge.Amount = new List<Amount> { new Amount(totalDiscounts, _invoiceCurrencyCode) };
                 invoiceAllowanceCharges.Add(discountCharge);
             }
 
@@ -94,8 +94,8 @@ namespace InvoisEGS.Utilities
             if (totalCharges > 0)
             {
                 var chargeCharge = new AllowanceCharge();
-                chargeCharge.ChargeIndicator = new List<BoolValue> { new BoolValue { Value = true } };
-                chargeCharge.AllowanceChargeReason = new List<TextValue> { new TextValue { Value = "Total Charges" } };
+                chargeCharge.ChargeIndicator = new List<BoolValue> { new BoolValue(true) };
+                chargeCharge.AllowanceChargeReason = new List<TextValue> { new TextValue("Total Charges") };
                 chargeCharge.Amount = new List<Amount> { new Amount { Value = totalCharges, CurrencyID = _invoiceCurrencyCode } };
                 invoiceAllowanceCharges.Add(chargeCharge);
             }
@@ -204,7 +204,7 @@ namespace InvoisEGS.Utilities
 
         private List<TaxTotal> CalculateTaxTotals(List<InvoiceLine> invoiceLines)
         {
-            decimal exchangeRate = _managerInvoice.ExchangeRate == 0 ? 1 : _managerInvoice.ExchangeRate;
+            decimal exchangeRate = _managerInvoice?.ExchangeRate == 0 ? 1 : _managerInvoice.ExchangeRate;
 
             // Group tax subtotals by rate
             var taxGroups = invoiceLines

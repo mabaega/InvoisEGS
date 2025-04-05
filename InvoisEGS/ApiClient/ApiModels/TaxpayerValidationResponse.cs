@@ -1,19 +1,19 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace InvoisEGS.ApiClient.ApiModels
 {
     public class TaxpayerValidationResponse
     {
-        [JsonPropertyName("status")]
+        [JsonProperty("status")]
         public string Status { get; set; }
 
-        [JsonPropertyName("message")]
+        [JsonProperty("message")]
         public string Message { get; set; }
 
-        [JsonPropertyName("isValid")]
+        [JsonProperty("isValid")]
         public bool IsValid { get; set; }
 
-        [JsonPropertyName("taxpayerInfo")]
+        [JsonProperty("taxpayerInfo")]
         public TaxpayerInfo TaxpayerInfo { get; set; }
     }
 }

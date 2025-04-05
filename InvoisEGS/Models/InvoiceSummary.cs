@@ -6,7 +6,7 @@ namespace InvoisEGS.Models
 {
     public class InvoiceSummary
     {
-        public string DocumentIssueDate { get; set; }
+        public string DocumentIssueDate { get; set; } = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         public string DocumentFormat { get; set; } = "JSON";
         public string DocumentVersion { get; set; } = "1.0";
         public string SubmissionUid { get; set; } = string.Empty;

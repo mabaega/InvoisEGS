@@ -48,7 +48,7 @@
                     <div class="col-md-2 mb-3">
                         <div class="form-group">
                             <label class="form-label">TIN*</label>
-                            <input asp-for="TaxPayerTIN" class="form-control form-control-sm" />
+                            <input asp-for="TaxPayerTIN" class="form-control form-control-sm business-data-field" readonly />
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
@@ -71,7 +71,8 @@
                     <div class="col-md-2 mb-3">
                         <div class="form-group">
                             <label class="form-label">ID Number*</label>
-                            <input asp-for="TaxPayerIDNumber" class="form-control form-control-sm" />
+                            <input asp-for="TaxPayerIDNumber" class="form-control form-control-sm business-data-field" readonly />
+                            
                         </div>
                     </div>
                     <div class="col-md-2 mb-3">
@@ -263,7 +264,7 @@
         </div>
 
         <!-- Certificate Settings Card -->
-        <div class="card mb-4">
+        <div id="certificateCard" class="card mb-4" style="display: none;">
             <div class="card-header">
                 <h6 class="mb-0">Certificate Settings</h6>
             </div>
@@ -403,9 +404,17 @@
             }
 
             function validateClientCredentials() {
-                return $("#ClientId").val() &&
-                    $("#ClientSecret").val() &&
-                    $("#TaxPayerTIN").val();
+                const clientId = $("#ClientId").val();
+                const clientSecret = $("#ClientSecret").val();
+                const taxPayerTIN = $("#TaxPayerTIN").val();
+                
+                console.log('Validating credentials:', {
+                    clientId: clientId ? 'Present' : 'Missing',
+                    clientSecret: clientSecret ? 'Present' : 'Missing',
+                    taxPayerTIN: taxPayerTIN ? 'Present' : 'Missing'
+                });
+                
+                return clientId && clientSecret && taxPayerTIN;
             }
 
             function updateSaveButtonState() {
@@ -455,12 +464,25 @@
 
                                 if (apiResponse.ok) successCount++;
                                 else failureCount++;
+
+                                console.log(`Update/Create: ${key} - ${await apiResponse.text()}`);
                             } catch {
                                 failureCount++;
                             }
                         }
                     }
-                    await showSuccessMessage(`${successCount} successful, ${failureCount} failed.`);
+                    //await showSuccessMessage(`${successCount} successful, ${failureCount} failed.`);
+                    if (failureCount > 0) 
+                    {
+                        await showErrorMessage(`${successCount} successful, ${failureCount} failed.`);
+                    } else {
+                        await showSuccessMessage(`${successCount} successful, ${failureCount} failed.`);
+                        // Enable the business data fields after successful update
+                        $(".business-data-field").prop("readonly", false);
+                        // Add visual indicator that the button has been clicked
+                        $("#generateCustomField").removeClass("btn-success").addClass("btn-secondary");
+                        $("#generateCustomField").html('<i class="fas fa-check"></i> Business Data Updated');
+                    }
                 } catch (error) {
                     await showErrorMessage(error.message);
                 } finally {
@@ -472,6 +494,13 @@
                 const version = $(this).val();
                 const isCertRequired = version === "1.1";
                 
+                // Show/hide certificate card based on version
+                if (isCertRequired) {
+                    $("#certificateCard").show();
+                } else {
+                    $("#certificateCard").hide();
+                }
+
                 // Enable/disable certificate section based on version
                 $("#certificateType, #certificateFile, #certificatePassword").prop('disabled', !isCertRequired || !isCredentialsValid);
                 $("#verifyCertificate").prop('disabled', !isCertRequired || !isCredentialsValid);
@@ -479,8 +508,8 @@
                 // Update validation logic
                 if (!isCertRequired) {
                     isCertificateValid = true;
-                    $("#Certificate").val('BYPASS_CERTIFICATE');
-                    $("#PrivateKey").val('BYPASS_PRIVATE_KEY');
+                    $("#Certificate").val('');
+                    $("#PrivateKey").val('');
                 } else {
                     isCertificateValid = false;
                     $("#Certificate").val('');
@@ -522,12 +551,6 @@
 
                     await showSuccessMessage("Connection successful!");
                     isCredentialsValid = true;
-                    // BYPASS: Auto set certificate as valid
-                    //isCertificateValid = true;
-                    //$("#Certificate").val('BYPASS_CERTIFICATE');
-                    //$("#PrivateKey").val('BYPASS_PRIVATE_KEY');
-                    
-                    //ori
                     $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', false);
                     $("#verifyClientCredential").prop('disabled', true);
 
@@ -535,7 +558,6 @@
                 } catch (error) {
                     isCredentialsValid = false;
                     await showErrorMessage(error.message);
-                    //ori
                     $("#verifyClientCredential").prop('disabled', false);
                     $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', true);
 
@@ -665,12 +687,18 @@
                         throw new Error('Please fill in all required fields');
                     }
 
-                    if (!$("#Certificate").val()) {
-                        throw new Error('Certificate data is missing. Please verify the certificate again.');
-                    }
+                    // Only validate certificate for version 1.1
+                    const version = $("#DocumentVersion").val();
+                    const isCertRequired = version === "1.1";
+                    
+                    if (isCertRequired) {
+                        if (!$("#Certificate").val()) {
+                            throw new Error('Certificate data is missing. Please verify the certificate again.');
+                        }
 
-                    if (!$("#PrivateKey").val()) {
-                        throw new Error('Private key is missing. Please verify the certificate again.');
+                        if (!$("#PrivateKey").val()) {
+                            throw new Error('Private key is missing. Please verify the certificate again.');
+                        }
                     }
 
                     showLoading('Saving configuration...');
@@ -707,6 +735,7 @@
 
                     await showSuccessMessage('Configuration saved successfully!');
                     window.location.href = $('input[name="Referrer"]').val();
+
                 } catch (error) {
                     await showErrorMessage(error.message);
                 } finally {
@@ -716,6 +745,9 @@
 
             // Form field event handlers
             $("#ClientId, #ClientSecret, #TaxPayerTIN").on('input change', function() {
+                // Update verify button state immediately based on field validation
+                $("#verifyClientCredential").prop('disabled', !validateClientCredentials());
+                
                 if (isCertificateValid && $("#Certificate").val() && $("#PrivateKey").val()) {
                     // Don't clear certificate data if it's already validated
                     return;
@@ -723,14 +755,50 @@
                 
                 isCredentialsValid = false;
                 isCertificateValid = false;
-                $("#verifyClientCredential").prop('disabled', !validateClientCredentials());
+                
+                // Disable certificate fields until credentials are verified
                 $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', true);
+                
+                // Check document version to show/hide certificate card
+                const currentVersion = $("#DocumentVersion").val();
+                if (currentVersion === "1.1") {
+                    $("#certificateCard").show();
+                    // For version 1.1, certificate validation is required
+                    isCertificateValid = false;
+                    $("#Certificate").val('');
+                    $("#PrivateKey").val('');
+                } else {
+                    // For version 1.0, bypass certificate validation
+                    $("#certificateCard").hide();
+                    isCertificateValid = true;
+                    $("#Certificate").val('');
+                    $("#PrivateKey").val('');
+                }
+                
                 updateSaveButtonState();
             });
 
             // Initial state setup
             $("#verifyClientCredential").prop('disabled', !validateClientCredentials());
             $("#certificateType, #certificateFile, #certificatePassword, #verifyCertificate").prop('disabled', true);
+            
+            // Trigger validation check on page load
+            setTimeout(function() {
+                $("#verifyClientCredential").prop('disabled', !validateClientCredentials());
+                console.log('Initial verify button state:', !validateClientCredentials() ? 'Disabled' : 'Enabled');
+            }, 500);
+            
+            // Check initial document version to show/hide certificate card
+            const initialVersion = $("#DocumentVersion").val();
+            if (initialVersion === "1.1") {
+                $("#certificateCard").show();
+            } else {
+                $("#certificateCard").hide();
+                isCertificateValid = true;
+                $("#Certificate").val('');
+                $("#PrivateKey").val('');
+            }
+            
             updateSaveButtonState();
         });
     </script>

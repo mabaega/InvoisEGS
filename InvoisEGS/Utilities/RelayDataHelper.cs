@@ -147,7 +147,8 @@ namespace InvoisEGS.Utilities
             }
 
             // Return the value associated with the fieldGuid, or null if it doesn't exist
-            return strings.ContainsKey(fieldGuid) ? strings[fieldGuid]?.ToString() : null;
+            var ret = strings.ContainsKey(fieldGuid) ? strings[fieldGuid]?.ToString() : null;
+            return string.IsNullOrEmpty(ret) ? null : ret;
         }
 
         public static double GetDecimalCustomField2Value(string editData, string fieldGuid, string? key = null)

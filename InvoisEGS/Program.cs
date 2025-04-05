@@ -20,9 +20,9 @@ namespace InvoisEGS
            @"C:\Users\Incredible One\source\repos\InvoisEGS\InvoisEGS\test-certificate.pfx",
            "12345678"); */
 
-            CertTest.ExtractCertificateNative();
+/*             CertTest.ExtractCertificateNative();
             CertTest.GetCertificateContents();
-            return;
+            return; */
 
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

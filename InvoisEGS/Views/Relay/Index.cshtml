@@ -113,7 +113,6 @@
                         <input type="hidden" name="IssueTime" value="@Model.IssueTime" />
                         <input type="hidden" name="SubmitRequestJson" value="@Model.SubmitRequestJson" />
                         <input type="hidden" name="DocumentFormat" value="@Model.DocumentFormat" />
-                        <input type="hidden" name="DocumentVersion" value="@Model.DocumentVersion" />
 
                         <div class="card shadow-sm">
                             <div class="card-header text-center">
@@ -135,8 +134,8 @@
                                     
                                     <div class="col-md-3">
                                         <div class="mb-2">
-                                        <label for="ListVersionID" class="form-label">Document Version:</label>
-                                        <input type="text" class="form-control form-control-sm text-center" id="ListVersionID" name="ListVersionID" value="@InvObject?.InvoiceTypeCode[0].ListVersionID" readonly>
+                                        <label for="DocumentVersion" class="form-label">Document Version:</label>
+                                        <input type="text" class="form-control form-control-sm text-center" id="DocumentVersion" name="DocumentVersion" value="@InvObject?.InvoiceTypeCode[0].ListVersionID" readonly>
                                         </div>
                                     </div>
 
@@ -492,44 +491,54 @@
         });
     }
 
-    function handleError(error) {
-        console.error('Error:', error);
+    function handleError(data) {
+        console.error('Error:', data);
                 // Make sure loading is hidden before showing error
         hideLoading();
         // Show only serverResponse in textarea
-        if (error.serverResponse) {
+        if (data.serverResponse) {
             try {
-                const parsedJson = JSON.parse(error.serverResponse);
+                const parsedJson = JSON.parse(data.serverResponse);
                 $('#textareaResponse').val(JSON.stringify(parsedJson, null, 2));
             } catch (e) {
-                $('#textareaResponse').val(error.serverResponse);
+                $('#textareaResponse').val(data.serverResponse);
             }
         }
                 
         // Extract error message from the response
         let errorMessage = '';
-        if (error.serverResponse) {
+        if (data.serverResponse) {
             try {
-                const parsedJson = JSON.parse(error.serverResponse);
+                const parsedJson = JSON.parse(data.serverResponse);
                 errorMessage = parsedJson.error?.details?.[0]?.message || 
                              parsedJson.error?.message ||
                              parsedJson.message ||
                              JSON.stringify(parsedJson);
             } catch (e) {
-                errorMessage = error.serverResponse;
+                errorMessage = data.serverResponse;
             }
         } else {
-            errorMessage = error.message || 'An unexpected error occurred';
+            errorMessage = data.message || 'An unexpected error occurred';
         }
-
         // Show error message in alert after a short delay
         setTimeout(() => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage,
-                confirmButtonText: 'OK'
-            });
+            if (data.code === "InProgress") {
+                Swal.fire({
+                      icon: 'info',
+                      title: 'Status InProgress',
+                      text: data.message,
+                      confirmButtonText: 'OK'
+                  });
+            }
+            else
+            {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    confirmButtonText: 'OK'
+                });
+            }
         }, 100);
     }
 
@@ -584,6 +593,11 @@
                 contentType: false,
                 dataType: 'json'
             });
+
+            if (response.code === "InProgress") {
+                handleError(response);
+                return;
+            }
 
             updateUIElements(response);
 

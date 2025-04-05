@@ -26,7 +26,7 @@ namespace InvoisEGS.Utilities
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            return GetNumberOnly(fvi.FileVersion);
+            return GetNumberOnly(fvi.FileVersion ?? "");
         }
     }
 }

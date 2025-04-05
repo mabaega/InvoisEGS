@@ -4,6 +4,7 @@ using InvoisEGS.Exceptions;
 using InvoisEGS.Utilities;
 using Newtonsoft.Json;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace InvoisEGS.Models
 {
@@ -26,7 +27,8 @@ namespace InvoisEGS.Models
         public decimal ExchangeRate { get; private set; } = 1;
 
         public InvoiceTypeCodeEnum InvoiceTypeCode { get; private set; } = InvoiceTypeCodeEnum.Invoice;
-        public string ListVersionID { get; private set; } = "1.1";
+        public string DocumentFormat { get; private set; } = "JSON";
+        public string DocumentVersion { get; private set; } = "1.0";
         public decimal InvoiceTotal { get; private set; } = 0;
 
         public AccountingCustomerParty Buyer { get; private set; }
@@ -91,6 +93,8 @@ namespace InvoisEGS.Models
 
                 ValidatePartyIDsSync().GetAwaiter().GetResult();
 
+                ValidatePartyData().GetAwaiter().GetResult();
+
                 if (validationErrors.Count > 0)
                 {
                     throw new ValidationException("Validation failed", validationErrors);
@@ -141,6 +145,9 @@ namespace InvoisEGS.Models
                 
                 InvoiceSummary.DocumentFormat  = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.DocumentFormatGuid) ?? AppConfig.DocumentFormat ?? "JSON";
                 InvoiceSummary.DocumentVersion = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.DocumentVersionGuid) ?? AppConfig.DocumentVersion ?? "1.0";
+                
+                DocumentFormat = InvoiceSummary.DocumentFormat;
+                DocumentVersion = InvoiceSummary.DocumentVersion;
 
                 LocalIssueDate = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.DocumentIssuedDateGuid);
 
@@ -161,7 +168,7 @@ namespace InvoisEGS.Models
 
                 InvoiceSummary.SubmissionUid = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.SubmissionIdGuid) ?? "";
 
-                string submissionDate = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.SubmissionDateGuid);
+                string submissionDate = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.SubmissionDateGuid) ?? DateTime.Now.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ssZ");
 
                 if (DateTime.TryParseExact(submissionDate, "yyyy-MM-dd HH:mm:ssZ", null, System.Globalization.DateTimeStyles.None, out DateTime parsedSubmissionDate))
                 {
@@ -186,6 +193,8 @@ namespace InvoisEGS.Models
         }
         private void GetBuyer(string jsonInvoice)
         {
+
+
             Buyer = new AccountingCustomerParty
             {
                 Party = new List<CustomerParty>
@@ -201,9 +210,9 @@ namespace InvoisEGS.Models
                         {
                             new PostalAddress
                             {
-                                CityName = new List<TextValue> { new TextValue { Value = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerCityNameGuid, "InvoiceParty") } },
-                                PostalZone = new List<TextValue> { new TextValue { Value = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerPostalZoneGuid, "InvoiceParty") } },
-                                CountrySubentityCode = new List<TextValue> { new TextValue { Value = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerSubentityCodeGuid, "InvoiceParty") } },
+                                CityName = new List<TextValue> { new TextValue (RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerCityNameGuid, "InvoiceParty") ?? "") },
+                                PostalZone = new List<TextValue> { new TextValue ( RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerPostalZoneGuid, "InvoiceParty") ?? "" ) },
+                                CountrySubentityCode = new List<TextValue> { new TextValue (RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerSubentityCodeGuid, "InvoiceParty") ?? "17" ) },
                                 AddressLine = new List<AddressLine>
                                 {
                                     new AddressLine(RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerAddressLine1Guid, "InvoiceParty") ?? ""),
@@ -212,16 +221,13 @@ namespace InvoisEGS.Models
                                 },
                                 Country = new List<Country>
                                 {
-                                    new Country(RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerCountryGuid, "InvoiceParty"))
+                                    new Country(RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerCountryGuid, "InvoiceParty") ?? "MYS")
                                 }
                             }
                         },
                         PartyLegalEntity = new List<PartyLegalEntity>
                         {
-                            new PartyLegalEntity
-                            {
-                                RegistrationName = new List<TextValue> { new TextValue { Value = RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerRegistrationNameGuid, "InvoiceParty") } }
-                            }
+                            new PartyLegalEntity(RelayDataHelper.GetStringCustomField2Value(jsonInvoice, ManagerCustomField.BuyerRegistrationNameGuid, "InvoiceParty") ?? "")
                         },
                         Contact = new List<Contact>
                         {
@@ -261,7 +267,6 @@ namespace InvoisEGS.Models
                 }
 
                 CNDNReferences = new List<string> { RefDocumentUUID };
-
             }
         }
 
@@ -314,6 +319,66 @@ namespace InvoisEGS.Models
                 // Console.WriteLine("Skipping validation: ID Type or Value is empty or NA");
             }
         }
+        private async Task ValidatePartyData()
+        {
+            if (Buyer == null || Buyer.Party == null || Buyer.Party.Count == 0)
+            {
+                validationErrors.Add("Buyer information is missing");
+                return;
+            }
+
+            var party = Buyer.Party[0];
+            
+            // Check Address Line 1
+            var addressLine1 = party.PostalAddress?[0]?.AddressLine?[0]?.Line[0].Value ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(addressLine1))
+            {
+                validationErrors.Add("Buyer's Address Line 1 is mandatory");
+            }
+            
+            // Check Buyer's Contact Number
+            var contactNumber = party.Contact?[0]?.Telephone?[0]?.Value ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(contactNumber))
+            {
+                validationErrors.Add("Buyer's Contact Number is mandatory");
+            }
+            
+            // Check Buyer's Name (Registration Name)
+            var registrationName = party.PartyLegalEntity?[0]?.RegistrationName?[0]?.Value ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(registrationName))
+            {
+                validationErrors.Add("Buyer's Name is mandatory");
+            }
+            
+            // Check City Name
+            var cityName = party.PostalAddress?[0]?.CityName?[0]?.Value ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(cityName))
+            {
+                validationErrors.Add("City Name is mandatory");
+            }
+            
+            // Check Country (must be 3 characters)
+            var country = party.PostalAddress?[0]?.Country?[0]?.IdentificationCode?[0]?.Value ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(country))
+            {
+                validationErrors.Add("Country is mandatory");
+            }
+            else if (country.Length != 3)
+            {
+                validationErrors.Add("Country code must be 3 characters");
+            }
+            
+            // Check State (must be between 01 and 17)
+            var state = party.PostalAddress?[0]?.CountrySubentityCode?[0]?.Value ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(state))
+            {
+                validationErrors.Add("State is mandatory");
+            }
+            else if (!Regex.IsMatch(state, "^(0[1-9]|1[0-7])$"))
+            {
+                validationErrors.Add("State code must be between 01 and 17");
+            }
+        }
 
         private void ValidateItems()
         {
@@ -360,22 +425,9 @@ namespace InvoisEGS.Models
             }
         }
 
-        public ApprovedInvoiceViewModel GetApprovedInvoiceViewModel()
-        {
-            ApprovedInvoiceViewModel viewModel = new()
-            {
-                SubmitDocumentRequestJson = InvoiceJson,
-                Referrer = Referrer,
-                InvoiceSummary = InvoiceSummary,
-            };
-            return viewModel;
-        }
-
         public RelayDataViewModel GetRelayDataViewModel()
         {
             RelayDataViewModel viewModel = new();
-
-            //MyInvoice Invoice = JsonConvert.DeserializeObject<MyInvoice>(InvoiceJson);
 
             viewModel.Referrer = Referrer;
             viewModel.FormKey = FormKey;
@@ -383,8 +435,9 @@ namespace InvoisEGS.Models
             viewModel.Token = Token;
 
             viewModel.IntegrationType = AppConfig.IntegrationType;
-            viewModel.DocumentFormat = AppConfig.DocumentFormat;
-            viewModel.DocumentVersion = AppConfig.DocumentVersion;
+
+            viewModel.DocumentFormat = DocumentFormat;
+            viewModel.DocumentVersion = DocumentVersion;
 
             viewModel.ClientID = AppConfig.ClientID;
             viewModel.ClientSecret = AppConfig.ClientSecret;
@@ -394,9 +447,6 @@ namespace InvoisEGS.Models
             viewModel.SubmitRequestJson = SubmitRequestJson;
             viewModel.InvoiceJson = InvoiceJson;
             viewModel.BusinessDetailJson = BusinessDetailJson;
-
-            viewModel.InvoiceTypeCode = InvoiceTypeCode;
-            viewModel.ListVersionID = ListVersionID;
 
             viewModel.DocumentReferences = CNDNReferences;
 

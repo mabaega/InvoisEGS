@@ -9,17 +9,21 @@ namespace InvoisEGS.ApiClient.ApiHelpers
 
         public static string GetEnvironmentPrefix(this IntegrationType type)
         {
+            return type == IntegrationType.PreProduction ? "preprod-" : "";
+        }
+        public static string GetQrPrefix(this IntegrationType type)
+        {
             return type == IntegrationType.PreProduction ? "preprod" : "";
         }
 
         public static string GetApiBaseUrl(this IntegrationType type)
         {
-            return $"https://{type.GetEnvironmentPrefix()}-{API_DOMAIN}";
+            return $"https://{type.GetEnvironmentPrefix()}{API_DOMAIN}";
         }
 
         public static string GetQrBaseUrl(this IntegrationType type)
         {
-            return $"https://{type.GetEnvironmentPrefix()}{QR_DOMAIN}";
+            return $"https://{type.GetQrPrefix()}{QR_DOMAIN}";
         }
     }
 }

@@ -97,11 +97,7 @@ namespace InvoisEGS.Models
                             },
                             Contact = new List<Contact>
                             {
-                                new Contact
-                                {
-                                    Telephone = new List<TextValue> { new TextValue(ContactTelephone) },
-                                    ElectronicMail = new List<TextValue> { new TextValue(ContactElectronicMail) }
-                                }
+                                new Contact(ContactTelephone, ContactElectronicMail)
                             }
                         }
                     }

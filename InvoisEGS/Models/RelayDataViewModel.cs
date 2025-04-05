@@ -9,12 +9,10 @@ namespace InvoisEGS.Models
         public string Api { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
         public IntegrationType IntegrationType { get; set; }
-        //public ApplicationConfig AppConfig { get; set; }
         public string ClientID { get; set; }
         public string ClientSecret { get; set; }
         public string SignServiceUrl { get; set; }
         public InvoiceTypeCodeEnum InvoiceTypeCode { get; set; }
-        public string ListVersionID { get; set; }
         public List<string> DocumentReferences { get; set; } = new List<string>();
         public string IssueDate { get; set; }
         public string IssueTime { get; set; }

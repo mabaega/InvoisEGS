@@ -1,46 +1,47 @@
-using System.Text.Json.Serialization;
+
+using Newtonsoft.Json;
 
 namespace InvoisEGS.ApiClient.ApiModels
 {
     public class SubmitDocumentResponse
     {
-        [JsonPropertyName("statusCode")]  
+        [JsonProperty("statusCode")]  
         public System.Net.HttpStatusCode StatusCode { get; set; }
 
-        [JsonPropertyName("submissionUID")]
+        [JsonProperty("submissionUID")]
         public string SubmissionUID { get; set; }
 
-        [JsonPropertyName("acceptedDocuments")]
+        [JsonProperty("acceptedDocuments")]
         public AcceptedDocument[] AcceptedDocuments { get; set; }
 
-        [JsonPropertyName("rejectedDocuments")]
+        [JsonProperty("rejectedDocuments")]
         public RejectedDocument[] RejectedDocuments { get; set; }
     }
 
     public class AcceptedDocument
     {
-        [JsonPropertyName("uuid")]
+        [JsonProperty("uuid")]
         public string UUID { get; set; }
 
-        [JsonPropertyName("invoiceCodeNumber")]
+        [JsonProperty("invoiceCodeNumber")]
         public string InvoiceCodeNumber { get; set; }
     }
 
     public class RejectedDocument
     {
-        [JsonPropertyName("invoiceCodeNumber")]
+        [JsonProperty("invoiceCodeNumber")]
         public string InvoiceCodeNumber { get; set; }
 
-        [JsonPropertyName("error")]
+        [JsonProperty("error")]
         public ErrorInfo Error { get; set; }
     }
 
     public class ErrorInfo
     {
-        [JsonPropertyName("code")]
+        [JsonProperty("code")]
         public string Code { get; set; }
 
-        [JsonPropertyName("message")]
+        [JsonProperty("message")]
         public string Message { get; set; }
 
         public static class ErrorCodes

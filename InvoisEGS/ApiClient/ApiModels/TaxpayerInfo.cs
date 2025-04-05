@@ -1,16 +1,17 @@
-﻿using System.Text.Json.Serialization;
+﻿
+using Newtonsoft.Json;
 
 namespace InvoisEGS.ApiClient.ApiModels
 {
     public class TaxpayerInfo
     {
-        [JsonPropertyName("name")]
+        [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("tin")]
+        [JsonProperty("tin")]
         public string Tin { get; set; }
 
-        [JsonPropertyName("registrationStatus")]
+        [JsonProperty("registrationStatus")]
         public string RegistrationStatus { get; set; }
     }
 }

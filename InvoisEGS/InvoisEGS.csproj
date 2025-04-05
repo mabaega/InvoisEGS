@@ -6,6 +6,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <AssemblyVersion>25.04.03.0001</AssemblyVersion>
+    <FileVersion>25.04.03.0001</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Register.cshtml" />
+    <Content Remove="Views\Setup\UpdateBusinessData.cshtml" />
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="ApiClient\Resources\JsonUBLExtensions.txt" />
     <EmbeddedResource Include="ApiClient\Resources\XmlSignature.txt" />
