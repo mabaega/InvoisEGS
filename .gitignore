@@ -371,3 +371,6 @@ FodyWeavers.xsd
 /InvoisEGS/Utilities/InvoiceTransformer.cs
 /InvoisEGS/.vscode/tasks.json
 /InvoisEGS/.vscode/launch.json
+/InvoisEGS/Class.cs
+/InvoisEGS/Views/Setup/UpdateBusinessData.cshtml
+/InvoisEGS/Register.cshtml
